@@ -1,16 +1,15 @@
 # Bulk
-### About
 A fitness app which lets users create workout plans, track eating, and set goals to improve their health. Gym routines can be created by specifying lift type and weight.
-Runners with smart watches by companies like Garmin and Polar can upload their activity's .GPX or .TCX file to view a map of their run, and see corresponding fitness data.
+Runners with smart watches by companies like Garmin and Polar can upload their activity's .GPX file to view a map of their run, and see corresponding fitness data.
 
-### Installation
-Requires that Python 3.8 or later and Django 4.1.6 or later are installed. The latest version of Django can be installed using:
+## Installation
+This webserver requires Python 3.8 or later, with [Django](https://www.djangoproject.com/) and [gpxpy](https://github.com/tkrajina/gpxpy). All required packages can be installed using:
 ```
-pip install django
+pip install -r requirements.txt
 ```
 
-### Running the webserver
-The Django development server can be run using the following command from the bulk/ directory:
+## Running the webserver
+The Django development server can be run using the following command from the `bulk/` directory:
 ```
 python manage.py runserver
 ```
