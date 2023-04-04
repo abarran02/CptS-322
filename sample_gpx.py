@@ -5,7 +5,26 @@ import gpxpy
 import plotly.express as px
 import pandas as pd
 import numpy as np
+from math import radians, cos, sin, asin, sqrt
 
+# from https://stackoverflow.com/questions/4913349/haversine-formula-in-python-bearing-and-distance-between-two-gps-points
+def haversine(lon1, lat1, lon2, lat2):
+    """
+    Calculate the great circle distance in kilometers between two points 
+    on the earth (specified in decimal degrees)
+    """
+    # convert decimal degrees to radians 
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+
+    # haversine formula
+    dlon = lon2 - lon1 
+    dlat = lat2 - lat1 
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a)) 
+    r = 6378.1 # Radius of earth in kilometers
+    return c * r
+
+# from https://stackoverflow.com/questions/63787612/plotly-automatic-zooming-for-mapbox-maps
 def zoom_center(lons: tuple, lats: tuple, width_to_height: float=2.0):
     """Finds optimal zoom and centering for a plotly mapbox.
     
@@ -54,27 +73,53 @@ with open(gpx_path) as f:
 
 # Convert to a dataframe one point at a time.
 points = []
+total_distance = 0
+previous_point = gpx.tracks[0].segments[0].points[0]
 for segment in gpx.tracks[0].segments:
     for p in segment.points:
+        total_distance += haversine(previous_point.longitude, previous_point.latitude, 
+                                        p.longitude, p.latitude)
         points.append({
             'time': p.time,
             'latitude': p.latitude,
             'longitude': p.longitude,
             'elevation': p.elevation,
+            'distance': round(total_distance, 2)
         })
+
+        previous_point = p
 df = pd.DataFrame.from_records(points)
 
-# from https://stackoverflow.com/questions/63787612/plotly-automatic-zooming-for-mapbox-maps
 zoom, center = zoom_center(
     lons=df['longitude'],
     lats=df['latitude']
 )
 
 # from https://plotly.com/python/lines-on-maps/
-fig = px.line_mapbox(df, lat='latitude', lon='longitude', hover_name='time',
+fig = px.line_mapbox(df, lat='latitude', lon='longitude', hover_name='time', hover_data='distance',
                         color_discrete_sequence=["fuchsia"], zoom=(zoom-0.25), center=center)
 fig.update_layout(mapbox_style="open-street-map")
 fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
 # from https://stackoverflow.com/questions/36846395/embedding-a-plotly-chart-in-a-django-template
 fig.write_html("sample.html")
+
+if __name__ == "__main__":
+    # calculate the total distance traveled and pace
+    metric = True
+    if metric:
+        print(f"{round(total_distance, 2)} km")
+        pace = gpx.get_duration() / total_distance
+
+        minutes = divmod(pace, 60)
+        seconds = round(minutes[1])
+        # lead seconds with one zero if single digit
+        print(f"{int(minutes[0])}:{seconds:02d}/km")
+    else:
+        miles = total_distance / 1.609
+        print(f"{round(miles, 2)} mi")
+        pace = gpx.get_duration() / miles
+
+        minutes = divmod(pace, 60)
+        seconds = round(minutes[1])
+        print(f"{int(minutes[0])}:{seconds:02d}/mi")
