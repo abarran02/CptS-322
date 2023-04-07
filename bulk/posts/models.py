@@ -1,4 +1,8 @@
 from django.db import models
+from CalorieData import FoodData, DrinkData
+
+food_data = FoodData()
+drink_data = DrinkData()
 
 class Run(models.Model):
     distance = models.FloatField()
@@ -25,15 +29,17 @@ class Workout(models.Model):
 
 class Food(models.Model):
     description = models.TextField()
-    meal = models.CharField(max_length=32)
+    meal = models.CharField(max_length=64)
     calories = models.IntegerField()
     
-    def calories_manual(self, calories: int):
-        self.calories = calories
+    def data_from_food(self, restaurant: str, food: str):
+        self.calories = food_data[restaurant][food]
+        self.meal = food
+        self.description = f"from {restaurant}"
     
-    def calculate_calories_consumed(self):
-        food_data = {"Welch's Fruit Snack":45}
-        self.calories = food_data[self.meal]
+    def data_from_drink(self, drink: str):
+        self.calories = drink_data[drink]
+        self.meal = drink
 
 class Entry(models.Model):
     entry_id = models.IntegerField()
