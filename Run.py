@@ -2,16 +2,22 @@ import plotly.express as px
 import pandas as pd
 import numpy as np
 from math import radians, cos, sin, asin, sqrt
-from gpxpy.gpx import GPXTrackPoint # for typehinting
-from gpxpy.gpx import GPX
+from gpxpy.gpx import GPX, GPXTrackPoint # for typehinting
 
 class Run():
-    def __init__(self, gpx: GPX, metric: bool = True):
+    def __init__(self, gpx: GPX, metric: bool = True, weight: int = 0):
+        # move init parameters to self
         self.gpx = gpx
+        self.metric = metric
+        self.weight = weight
+
+        # convert given GPX to list of points for stats
+        # then to plotly mapbox object
         self.geo_stats = {'distance':0, 'elevation_gain':0, 'elevation_loss':0}
         self.df = self.__convert_to_points(gpx)
         self.__generate_mapbox()
-        self.metric = metric
+        
+        # using geostats, calculate pace or calories
         self.activity_stats = {'pace': '', 'calories': 0}
         self.__update_activity_stats()
 
@@ -56,6 +62,7 @@ class Run():
         return pd.DataFrame.from_records(points)
 
     def __generate_mapbox(self) -> None:
+        """Generate plotly mapbox with lines for each GPX point with latitude and longitude"""
         # calculate automatic zoom
         zoom, center = zoom_center(
             lons=self.df['longitude'],
@@ -69,23 +76,13 @@ class Run():
         self.mapbox.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
     def __update_activity_stats(self) -> None:
-        # calculate pace for total distance traveled
-        dist = self.geo_stats['distance']
-        if self.metric:
-            unit = 'km'
-            pace_seconds = self.gpx.get_duration() / dist
-        else:
-            unit = 'mi'
-            miles = dist / 1.609
-            pace_seconds = self.gpx.get_duration() / miles
+        """Calculate pace for total distance and calories burned for total time"""
+        distance = self.geo_stats['distance']
+        seconds = self.gpx.get_duration()
 
-        # convert total seconds to minutes and seconds mm:ss
-        minutes = divmod(pace_seconds, 60)
-        seconds = round(minutes[1])
-        # lead seconds with one zero if single digit
-        pace_string = f"{int(minutes[0])}:{seconds:02d}/{unit}"
-
-        self.activity_stats['pace'] = pace_string
+        # calculate pace to string mm:ss/km and calories burned
+        self.activity_stats['pace'] = calculate_running_pace(seconds, distance, self.metric)
+        self.activity_stats['calories'] = calculate_calories_burned(seconds, self.weight, self.metric)
 
     def write_html(self, filename: str) -> None:
         # from https://stackoverflow.com/questions/36846395/embedding-a-plotly-chart-in-a-django-template
@@ -109,7 +106,7 @@ def haversine(lon1: float, lat1: float, lon2: float, lat2: float) -> float:
     return c * r
 
 # from https://stackoverflow.com/questions/63787612/plotly-automatic-zooming-for-mapbox-maps
-def zoom_center(lons: tuple, lats: tuple, width_to_height: float=2.0):
+def zoom_center(lons: tuple, lats: tuple, width_to_height: float=2.0) -> tuple:
     """Finds optimal zoom and centering for a plotly mapbox.
     
     Parameters
@@ -148,3 +145,26 @@ def zoom_center(lons: tuple, lats: tuple, width_to_height: float=2.0):
     zoom = round(min(lon_zoom, lat_zoom), 2)
     
     return zoom, center
+
+def calculate_running_pace(seconds: int, distance: float, metric: bool = True) -> str:
+    if metric:
+        unit = 'km'
+        pace_seconds = seconds / distance
+    else:
+        unit = 'mi'
+        miles = distance / 1.609
+        pace_seconds = seconds / miles
+
+    # convert total seconds to minutes and seconds mm:ss
+    minutes = divmod(pace_seconds, 60)
+    seconds = round(minutes[1])
+    # lead seconds with one zero if single digit
+    return f"{int(minutes[0])}:{seconds:02d}/{unit}"
+
+def calculate_calories_burned(seconds: int, weight: int, metric: bool = True) -> float:
+    """Calculate activity calories burned using the equation = MET * weight (kg) * time (hrs)"""
+    # https://marathonhandbook.com/how-many-calories-burned-running-calculator/#met-formula
+    if not metric:
+        # convert kilograms to pounds
+        weight /= 2.205
+    return 10 * weight * (seconds / 3600)
