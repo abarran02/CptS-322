@@ -9,15 +9,15 @@ class FoodData:
     * restaurants: list of all valid restaurants
     """
     def __init__(self):
-        with open('bulk/data/foods.json', 'r') as food_file:
-            self.all_data = loads(food_file)
+        with open('bulk/CalorieData/foods.json', 'r') as food_file:
+            self.all_data = loads(food_file.read())
 
         # create nested dictionary of format above for easy calorie lookup
         self.calorie_lookup = {}
         for entry in self.all_data:
             restaurant_name = entry['restaurant']
             items_raw = entry['foodItems']
-            
+        
             # condense json object list to { food_name:calories, ... }
             items_clean = {}
             for item in items_raw:
@@ -37,8 +37,8 @@ class DrinkData:
     fast calorie lookup given exact drink name
     """
     def __init__(self):
-        with open('bulk/data/foods.json', 'r') as drink_file:
-            self.all_data = loads(drink_file)
+        with open('bulk/CalorieData/foods.json', 'r') as drink_file:
+            self.all_data = loads(drink_file.read())
 
         # create nested dictionary of format above for easy calorie lookup
         self.calorie_lookup = {}
