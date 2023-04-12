@@ -37,7 +37,7 @@ class DrinkData:
     fast calorie lookup given exact drink name
     """
     def __init__(self):
-        with open('bulk/CalorieData/foods.json', 'r') as drink_file:
+        with open('bulk/CalorieData/drinks.json', 'r') as drink_file:
             self.all_data = loads(drink_file.read())
 
         # create nested dictionary of format above for easy calorie lookup
