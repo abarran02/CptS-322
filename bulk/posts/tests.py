@@ -5,6 +5,7 @@ import os
 import sys
 import unittest
 
+from django.core.files.uploadedfile import TemporaryUploadedFile
 from django.test import TestCase
 
 current = os.path.dirname(os.path.realpath(__file__))
@@ -12,7 +13,9 @@ parent = os.path.dirname(current)
 sys.path.append(parent)
 
 from CalorieData import DrinkData, FoodData
-from posts.models import Meal
+from django.contrib.auth.models import User
+from posts.models import Meal, Run
+
 
 class testCases(unittest.TestCase):
     # test lookup of calorie data from FoodData and DrinkData
@@ -29,9 +32,10 @@ class testCases(unittest.TestCase):
         total_calories = functools.reduce(lambda a,b: a + b, meal)
         self.assertEqual(total_calories,1100)
 
-class ModelMealEntryTestCase(TestCase):
+class MealTestCase(TestCase):
     def setUp(self):
-        Meal.objects.create(title="test")
+        test_user = User.objects.create_user(username='testuser', password='12345')
+        Meal.objects.create(title="test", user=test_user)
         
     def test_sum_calories(self):
         meal = Meal.objects.get(title="test")
@@ -39,8 +43,24 @@ class ModelMealEntryTestCase(TestCase):
         meal.add_food("Chick-fil-A", "Large Waffle Fries")
         meal.add_drink("Sprite")
         
+        print(meal)
+
         total_calories = meal.sum_calories()
         self.assertEqual(total_calories,1100)
+
+class RunTestCase(TestCase):
+    def setUp(self):
+        test_user = User.objects.create_user(username='testuser', password='12345')
+        gpx_path = "uploads/sample.gpx"
+        size = os.path.getsize(gpx_path)
+        digest = TemporaryUploadedFile(gpx_path, 'text/plain', size, 'utf-8')
+        Run.objects.create(title='sample', gpx_upload=digest, user=test_user)
+
+    def test_distance(self):
+        pass
+
+    def test_calories(self):
+        pass
     
 if __name__ == "__main__":
     unittest.main()

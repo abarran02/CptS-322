@@ -13,13 +13,13 @@ class Run(models.Model):
     title = models.CharField(max_length=64)
     
     # updated with __gpx_to_dataframe() and __update_geo_stats()
-    distance = models.FloatField()
-    time = models.DurationField()
-    elevation_gain = models.IntegerField()
+    distance = models.FloatField(null=True)
+    time = models.DurationField(null=True)
+    elevation_gain = models.IntegerField(null=True)
 
     # updated with __update_fitness_stats()
-    pace = models.CharField(max_length=8)
-    calories = models.IntegerField()
+    pace = models.CharField(max_length=8, null=True)
+    calories = models.IntegerField(null=True, blank=True)
 
     # allow user GPX file upload to unique folder
     user = models.ForeignKey(
@@ -68,6 +68,7 @@ class Run(models.Model):
         # if elevation is gained, add to gain
         if previous.elevation < current.elevation:
             self.elevation_gain += current.elevation - previous.elevation
+        self.save()
 
     def __gpx_to_dataframe(self, gpx: GPX) -> pd.DataFrame:
         """Convert GPX points to Pandas dataframe"""
@@ -100,6 +101,7 @@ class Run(models.Model):
         # calculate pace to string mm:ss/km and calories burned
         self.pace = calculate_running_pace(seconds, distance, metric)
         self.calories = calculate_calories_burned(seconds, weight, metric)
+        self.save()
 
 # from https://stackoverflow.com/questions/4913349/haversine-formula-in-python-bearing-and-distance-between-two-gps-points
 def haversine(lon1: float, lat1: float, lon2: float, lat2: float) -> float:
