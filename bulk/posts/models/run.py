@@ -26,7 +26,8 @@ class Run(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
-    gpx_upload = models.FileField(upload_to=f"uploads/{user.id}")
+    
+    gpx_upload = models.FileField(upload_to=f"uploads/{user}")
 
     def __str__(self) -> str:
         return self.title

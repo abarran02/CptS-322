@@ -9,5 +9,6 @@ class Workout(models.Model):
     def calories_manual(self, calories: int):
         self.calories = calories
 
-    def calculate_calories_burned(self, weight: int, metric=False):
-        self.calories = self.run.calculate_calories_burned(weight, metric)
+    def calories_from_run(self, weight: int, metric: bool = True):
+        self.run.generate_stats(weight, metric)
+        self.calories = self.run.calories
