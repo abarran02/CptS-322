@@ -32,8 +32,6 @@ class FoodData:
         # quick list of valid restaurants
         self.restaurants = self.calorie_lookup.keys()
 
-        
-
 class DrinkData:
     """
     Dataclass to ingest `drinks.json` and provide the following data members:
