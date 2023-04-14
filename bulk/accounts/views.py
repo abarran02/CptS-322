@@ -7,6 +7,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from .forms import SettingsForm
+from.forms import FoodForm
 
 class SignUpView(generic.CreateView):
     form_class = UserCreationForm
@@ -46,3 +47,14 @@ def login_redirect(request):
         return HttpResponseRedirect(reverse('settings'))
     else:
         return HttpResponseRedirect(reverse('home'))
+    
+def food_tracker(request):
+    if (request.method == "POST"):
+        form = FoodForm(request.POST)
+        
+    else:
+        form = FoodForm()
+    return render(request, 'foodTracker.html',{'form': form})
+
+
+
