@@ -51,7 +51,8 @@ def login_redirect(request):
 def food_tracker(request):
     if (request.method == "POST"):
         form = FoodForm(request.POST)
-        
+        #if form.is_valid(): 
+            #return HttpResponseRedirect(reverse('home')) # returns home after submitting
     else:
         form = FoodForm()
     return render(request, 'foodTracker.html',{'form': form})
