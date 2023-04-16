@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.http import HttpRequest, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from posts.models.run import Run
 
@@ -8,7 +8,12 @@ from .forms import GPXForm
 
 
 def index(request):
-    return HttpResponse("Hello, world. You're at the Posts index.")
+    latest_posts = Run.objects.all()
+    return render(request, "index.html", {"latest_posts": latest_posts})
+
+def detail(request, post_id):
+    post = get_object_or_404(Run, pk=post_id)
+    return render(request, "run_detail.html", {'post': post})
 
 @login_required
 def gpx_form_upload(request: HttpRequest):
@@ -23,6 +28,4 @@ def gpx_form_upload(request: HttpRequest):
     else:
         form = GPXForm()
 
-    return render(request, "gpx_upload.html", {
-        "form": form
-    })
+    return render(request, "gpx_upload.html", {"form": form})

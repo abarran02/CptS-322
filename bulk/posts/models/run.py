@@ -72,6 +72,12 @@ class Run(models.Model):
 
     def __gpx_to_dataframe(self, gpx: GPX) -> pd.DataFrame:
         """Convert GPX points to Pandas dataframe"""
+        
+        # initialize model fields
+        self.distance = 0
+        self.elevation_gain = 0
+        self.save()
+        
         # from https://www.gpxz.io/blog/gpx-file-to-pandas
         points = []
         previous = gpx.tracks[0].segments[0].points[0]
@@ -85,7 +91,7 @@ class Run(models.Model):
                     'latitude': current.latitude,
                     'longitude': current.longitude,
                     'elevation': current.elevation,
-                    'distance': round(self.geo_stats['distance'], 2)
+                    'distance': round(self.distance, 2)
                 })
 
                 previous = current

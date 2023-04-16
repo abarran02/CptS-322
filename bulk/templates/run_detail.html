@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Runs Index{% endblock %}
+{% block content %}
+
+{% if post %}
+{{ post.title }}
+{{ post.generate_mapbox_html|safe }}
+{% else %}
+Post is unavailable
+{% endif %}
+
+<a href="{% url 'index' %}">Return to runs index</a>
+
+{% endblock %}
