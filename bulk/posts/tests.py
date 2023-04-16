@@ -42,8 +42,6 @@ class MealTestCase(TestCase):
         meal.add_food("Chick-fil-A", "Spicy Chicken Sandwich")
         meal.add_food("Chick-fil-A", "Large Waffle Fries")
         meal.add_drink("Sprite")
-        
-        print(meal)
 
         total_calories = meal.sum_calories()
         self.assertEqual(total_calories,1100)
@@ -51,7 +49,7 @@ class MealTestCase(TestCase):
 class RunTestCase(TestCase):
     def setUp(self):
         test_user = User.objects.create_user(username='testuser', password='12345')
-        gpx_path = "uploads/sample.gpx"
+        gpx_path = "media/uploads/sample.gpx"
         size = os.path.getsize(gpx_path)
         digest = TemporaryUploadedFile(gpx_path, 'text/plain', size, 'utf-8')
         Run.objects.create(title='sample', gpx_upload=digest, user=test_user)
