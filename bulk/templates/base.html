@@ -1,9 +1,13 @@
-<!-- templates/base.html -->
+{% load static %}
+
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
+  <script src="{% static 'js/example.js' %}"></script> <!-- This is how to include a static file -->
+  <link rel="stylesheet" href="{% static 'css/example.css' %}" type="text/css">
   <title>Bulk - {% block title %}{% endblock %}</title>
+  <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
 </head>
 <body>
   {% block content %}
