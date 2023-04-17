@@ -8,6 +8,7 @@ from .food import Food
 class Meal(models.Model):
     """A set of Food objects tied to a user"""
     title = models.CharField(max_length=10)
+    pub_date = models.DateTimeField()
     food_items = models.ManyToManyField(Food)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

@@ -23,37 +23,11 @@ def settings(request):
         form = SettingsForm(request.POST)
         # check whether it's valid:
         if form.is_valid():
-            request.user.first_name = form.cleaned_data['first_name']
-            request.user.last_name = form.cleaned_data['last_name']
-            request.user.email = form.cleaned_data['email']
-            request.user.save()
-            
-            UserData.objects.update_or_create(
-                height=form.cleaned_data['height'],
-                weight=form.cleaned_data['weight'],
-                metric=True,
-                user=request.user
-            )
-            
+            handle_form(request.user, form.cleaned_data)
             return HttpResponseRedirect(reverse('home'))
-
     # if a GET (or any other method) we'll create a blank form
     else:
-        initial = {
-            'first_name':request.user.first_name,
-            'last_name':request.user.last_name,
-            'email':request.user.email,
-        }
-        
-        # attempt to get previous user data, ignore if not found
-        try:
-            user_data = UserData.objects.get(user=request.user)
-            initial['height'] = user_data.height
-            initial['weight'] = user_data.weight
-        except ObjectDoesNotExist:
-            pass
-        
-        form = SettingsForm(initial=initial)
+        form = init_form(request.user)
 
     return render(request, 'settings.html', {'form': form})
 
@@ -64,3 +38,39 @@ def login_redirect(request):
         return HttpResponseRedirect(reverse('settings'))
     else:
         return HttpResponseRedirect(reverse('home'))
+
+def init_form(user) -> SettingsForm:
+    """Populate SettingsForm with exising user data, if available. Blank otherwise."""
+    initial = {
+        'first_name':user.first_name,
+        'last_name':user.last_name,
+        'email':user.email,
+    }
+    
+    # attempt to get previous user data, ignore if not found
+    try:
+        user_data = UserData.objects.get(user=user)
+        initial['height'] = user_data.height
+        initial['weight'] = user_data.weight
+    except ObjectDoesNotExist:
+        pass
+    
+    return SettingsForm(initial=initial)
+
+def handle_form(user, cleaned_data):
+    # update user info from form data
+    user.first_name = cleaned_data['first_name']
+    user.last_name = cleaned_data['last_name']
+    user.email = cleaned_data['email']
+    user.save()
+    
+    # update user's UserData object, or create if not yet created
+    UserData.objects.update_or_create(
+        user=user,
+        defaults={
+            'user':user,
+            'height':cleaned_data['height'],
+            'weight':cleaned_data['weight'],
+            'metric': True
+        }
+    )

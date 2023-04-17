@@ -12,6 +12,7 @@ from datetime import timedelta
 
 class Run(models.Model):
     title = models.CharField(max_length=64)
+    pub_date = models.DateTimeField()
     
     # updated with __gpx_to_dataframe() and __update_geo_stats()
     distance = models.FloatField(null=True)
@@ -115,7 +116,7 @@ class Run(models.Model):
         seconds = self.time
 
         # calculate pace to string mm:ss/km and calories burned
-        self.pace = calculate_running_pace(seconds, distance, metric)
+        self.pace = calculate_pace(seconds, distance, metric)
         self.calories = calculate_calories_burned(seconds, weight, metric)
         self.save()
 
@@ -140,17 +141,15 @@ def haversine(lon1: float, lat1: float, lon2: float, lat2: float) -> float:
 def zoom_center(lons: tuple, lats: tuple, width_to_height: float=2.0) -> tuple:
     """Finds optimal zoom and centering for a plotly mapbox.
     
-    Parameters
-    --------
-    lons: tuple, optional, longitude component of each location
-    lats: tuple, optional, latitude component of each location
-    width_to_height: float, expected ratio of final graph's with to height,
-        used to select the constrained axis.
+    Args:
+        lons: tuple, optional, longitude component of each location
+        lats: tuple, optional, latitude component of each location
+        width_to_height: float, expected ratio of final graph's with to height,
+            used to select the constrained axis.
     
-    Returns
-    --------
-    zoom: float, from 1 to 20
-    center: dict, gps position with 'lon' and 'lat' keys
+    Returns:
+        zoom: float, from 1 to 20
+        center: dict, gps position with 'lon' and 'lat' keys
     """
     
     maxlon, minlon = max(lons), min(lons)
@@ -177,7 +176,17 @@ def zoom_center(lons: tuple, lats: tuple, width_to_height: float=2.0) -> tuple:
     
     return zoom, center
 
-def calculate_running_pace(duration: timedelta, distance: float, metric: bool = True) -> str:
+def calculate_pace(duration: timedelta, distance: float, metric: bool = True) -> str:
+    """Convert time and distance to pace
+
+    Args:
+        duration (timedelta): duration of the activity
+        distance (float): distance of the activity in kilometers or miles, depending on `metric`
+        metric (bool, optional): defines kilometers or miles. Defaults to True.
+
+    Returns:
+        str: pace in format `mm:ss/km` or `mm:ss/mi`
+    """
     if metric:
         unit = 'km'
         pace_seconds = duration.seconds / distance
