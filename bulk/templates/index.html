@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Runs Index{% endblock %}
+
+
+{% block content %}
+
+{% if latest_posts %}
+
+<ul>
+    {% for post in latest_posts %}
+    <li>
+        <a href="{% url 'detail' post.id %}">{{ post.title }}</a>
+    </li>
+    {% endfor %}
+</ul>
+
+{% else %}
+    <p>No posts are available.</p>
+{% endif %}
+
+<a href="{% url 'upload' %}">Upload</a>
+<a href="{% url 'home' %}">Return to home</a>
+
+{% endblock %}

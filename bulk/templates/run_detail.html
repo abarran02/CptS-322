@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Runs Index{% endblock %}
+
+
+{% block content %}
+
+{% if post %}
+
+<p>{{ post.title }}</p>
+
+{% if metric %}
+<p>{{ post.distance }} km</p>
+{% else %}
+<p>{{ post.distance }} mi</p>
+{% endif %}
+
+<p>{{ post.time }}</p>
+<p>{{ post.calories }}</p>
+
+{{ run_map|safe }}
+
+{% else %}
+Post is unavailable
+{% endif %}
+
+
+<a href="{% url 'index' %}">Return to runs index</a>
+
+{% endblock %}
