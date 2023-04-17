@@ -7,6 +7,7 @@ import plotly.express as px
 from django.conf import settings
 from django.db import models
 from gpxpy.gpx import GPX, GPXTrackPoint  # for typehinting
+from datetime import timedelta
 
 
 class Run(models.Model):
@@ -32,18 +33,22 @@ class Run(models.Model):
     def __str__(self) -> str:
         return self.title
 
-    def generate_stats(self, weight: int = 0, metric: bool = True):
+    def generate_stats(self, weight: int = 0, metric: bool = True) -> pd.DataFrame:
         """Generate Run distance, time, elevation gain, pace, and calories. Default is metric for distance in km and weight in kg."""
         gpx_stream = gpxpy.parse(self.gpx_upload)
         # convert given GPX to list of points for stats
-        self.__gpx_to_dataframe(gpx_stream)
+        df = self.__gpx_to_dataframe(gpx_stream)
         # using geostats, calculate pace or calories
         self.__update_fitness_stats(weight, metric)
+        
+        return df
 
-    def generate_mapbox_html(self):
+    def generate_mapbox_html(self, df: pd.DataFrame = None):
         """Generate plotly mapbox HTML with lines for each GPX point with latitude and longitude"""
-        gpx_stream = gpxpy.parse(self.gpx_upload)
-        df = self.__gpx_to_dataframe(gpx_stream)
+        if df is None:
+            gpx_stream = gpxpy.parse(self.gpx_upload)
+            df = self.__gpx_to_dataframe(gpx_stream)
+        
         # calculate automatic zoom
         zoom, center = zoom_center(
             lons=df['longitude'],
@@ -58,6 +63,10 @@ class Run(models.Model):
 
         # from https://stackoverflow.com/questions/36846395/embedding-a-plotly-chart-in-a-django-template
         return mapbox.to_html()
+
+    def generate_stats_and_map(self, weight: int = 0, metric: bool = True):
+        df = self.generate_stats(weight=weight, metric=metric)
+        return self.generate_mapbox_html(df=df)
 
     def __update_geo_stats(self, previous: GPXTrackPoint, current: GPXTrackPoint) -> None:
         """Add distance and elevation between given GPXTrackPoints"""
@@ -76,6 +85,7 @@ class Run(models.Model):
         # initialize model fields
         self.distance = 0
         self.elevation_gain = 0
+        self.time = timedelta(seconds=gpx.get_duration())
         self.save()
         
         # from https://www.gpxz.io/blog/gpx-file-to-pandas
@@ -167,14 +177,14 @@ def zoom_center(lons: tuple, lats: tuple, width_to_height: float=2.0) -> tuple:
     
     return zoom, center
 
-def calculate_running_pace(seconds: int, distance: float, metric: bool = True) -> str:
+def calculate_running_pace(duration: timedelta, distance: float, metric: bool = True) -> str:
     if metric:
         unit = 'km'
-        pace_seconds = seconds / distance
+        pace_seconds = duration.seconds / distance
     else:
         unit = 'mi'
         miles = distance / 1.609
-        pace_seconds = seconds / miles
+        pace_seconds = duration.seconds / miles
 
     # convert total seconds to minutes and seconds mm:ss
     minutes = divmod(pace_seconds, 60)
@@ -182,10 +192,10 @@ def calculate_running_pace(seconds: int, distance: float, metric: bool = True) -
     # lead seconds with one zero if single digit
     return f"{int(minutes[0])}:{seconds:02d}/{unit}"
 
-def calculate_calories_burned(seconds: int, weight: int, metric: bool = True) -> float:
+def calculate_calories_burned(duration: timedelta, weight: int, metric: bool = True) -> float:
     """Calculate activity calories burned using the equation = MET * weight (kg) * time (hrs)"""
     # https://marathonhandbook.com/how-many-calories-burned-running-calculator/#met-formula
     if not metric:
         # convert kilograms to pounds
         weight /= 2.205
-    return 10 * weight * (seconds / 3600)
+    return 10 * weight * (duration.seconds / 3600)

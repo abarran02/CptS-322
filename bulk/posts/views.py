@@ -5,15 +5,19 @@ from django.urls import reverse
 from posts.models.run import Run
 
 from .forms import GPXForm
+from accounts.models import UserData
 
 
-def index(request):
+def index(request: HttpRequest):
     latest_posts = Run.objects.all()
     return render(request, "index.html", {"latest_posts": latest_posts})
 
-def detail(request, post_id):
+def detail(request: HttpRequest, post_id):
     post = get_object_or_404(Run, pk=post_id)
-    return render(request, "run_detail.html", {'post': post})
+    user_data = UserData.objects.get(user=request.user)
+    run_map = post.generate_stats_and_map(weight=user_data.weight, metric=user_data.metric)
+
+    return render(request, "run_detail.html", {'post': post, 'metric': user_data.metric, 'run_map': run_map})
 
 @login_required
 def gpx_form_upload(request: HttpRequest):

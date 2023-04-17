@@ -1,11 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.views import generic
 
 from .forms import SettingsForm
+from .models import UserData
 
 
 class SignUpView(generic.CreateView):
@@ -26,6 +28,13 @@ def settings(request):
             request.user.email = form.cleaned_data['email']
             request.user.save()
             
+            UserData.objects.update_or_create(
+                height=form.cleaned_data['height'],
+                weight=form.cleaned_data['weight'],
+                metric=True,
+                user=request.user
+            )
+            
             return HttpResponseRedirect(reverse('home'))
 
     # if a GET (or any other method) we'll create a blank form
@@ -33,8 +42,17 @@ def settings(request):
         initial = {
             'first_name':request.user.first_name,
             'last_name':request.user.last_name,
-            'email':request.user.email
+            'email':request.user.email,
         }
+        
+        # attempt to get previous user data, ignore if not found
+        try:
+            user_data = UserData.objects.get(user=request.user)
+            initial['height'] = user_data.height
+            initial['weight'] = user_data.weight
+        except ObjectDoesNotExist:
+            pass
+        
         form = SettingsForm(initial=initial)
 
     return render(request, 'settings.html', {'form': form})

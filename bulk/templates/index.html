@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
-
 {% block title %}Runs Index{% endblock %}
+
+
 {% block content %}
 
 {% if latest_posts %}
@@ -17,6 +18,7 @@
     <p>No posts are available.</p>
 {% endif %}
 
+<a href="{% url 'upload' %}">Upload</a>
 <a href="{% url 'home' %}">Return to home</a>
 
 {% endblock %}
