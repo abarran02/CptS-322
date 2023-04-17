@@ -13,3 +13,8 @@ The Django development server can be run using the following command from the `b
 ```
 python manage.py runserver
 ```
+If you need to regenerate the SQLite database, you must delete all `migrations/` and `__pycache__/` folders, then run the following commands:
+```Bash
+python manage.py makemigrations accounts posts
+python manage.py migrate
+```
