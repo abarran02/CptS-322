@@ -65,12 +65,16 @@ def handle_form(user, cleaned_data):
     user.save()
     
     # update user's UserData object, or create if not yet created
-    UserData.objects.update_or_create(
+    user_data = UserData.objects.update_or_create(
         user=user,
         defaults={
             'user':user,
             'height':cleaned_data['height'],
             'weight':cleaned_data['weight'],
-            'metric': True
+            'metric': True,
+            'location': cleaned_data['location']
         }
     )
+
+    # force user to follow themself
+    user_data[0].following.add(user)

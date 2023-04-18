@@ -12,34 +12,53 @@ from posts.models.run import Run
 from .forms import GPXForm
 
 
+def home(request: HttpRequest):
+    if request.user.is_authenticated:
+        user_data = UserData.objects.get(user=request.user)
+        following = user_data.following.all()
+        latest_posts = Run.objects.filter(user__in=following).order_by('-pub_date')
+    else:
+        latest_posts = []
+    return render(request, "home.html", {"latest_posts": latest_posts})
+
+@login_required
 def user_index(request: HttpRequest):
     all_users = User.objects.all()
     return render(request, "user_index.html", {"all_users": all_users})
 
+@login_required
 def profile(request: HttpRequest, user_id):
     # get target user profile
     profile = get_object_or_404(User, pk=user_id)
     
-    # requesting user follows or unfollows the target profile
+    following = False
+    user_is_self = profile.id == request.user.id
     user_data = UserData.objects.get(user=request.user)
-    if 'follow' in request.POST:
-        user_data.following.add(profile)
-    
-    if 'unfollow' in request.POST:
-        user_data.following.remove(profile)
-    
-    # check whether requesting user is following target profile
-    if not user_data.following.filter(id=profile.id).exists():
-        following = True
-    else:
-        following = False
-    
-    return render(request, "profile.html", {"profile": profile, "following": following})
+    if not user_is_self:
+        # requesting user follows or unfollows the target profile
+        if 'follow' in request.POST:
+            user_data.following.add(profile)
 
-def run_index(request: HttpRequest):
-    latest_posts = Run.objects.filter(user=request.user).order_by('-pub_date')
-    return render(request, "index.html", {"latest_posts": latest_posts})
+        if 'unfollow' in request.POST:
+            user_data.following.remove(profile)
 
+        # check whether requesting user is following target profile
+        if not user_data.following.filter(id=profile.id).exists():
+            following = True
+        else:
+            following = False
+    
+    user_entries = Run.objects.filter(user=profile).order_by('-pub_date')
+
+    return render(request, "profile.html", {
+        "profile": profile,
+        "user_data": user_data,
+        "following": following,
+        "user_is_self": user_is_self,
+        "user_entries": user_entries
+    })
+
+@login_required
 def detail(request: HttpRequest, post_id):
     post = get_object_or_404(Run, pk=post_id)
     user_data = UserData.objects.get(user=request.user)

@@ -9,13 +9,13 @@
     <p>{{ post.title }}</p>
 
     {% if metric %}
-      <p>{{ post.distance }} km</p>
+      <p>{{ post.distance|floatformat:2 }} km</p>
     {% else %}
-      <p>{{ post.distance }} mi</p>
+      <p>{{ post.distance|floatformat:2 }} mi</p>
     {% endif %}
 
     <p>{{ post.time }}</p>
-    <p>{{ post.calories }}</p>
+    <p>{{ post.calories|floatformat:0 }} calories</p>
 
     {{ run_map|safe }}
 
@@ -23,5 +23,5 @@
     Post is unavailable
   {% endif %}
 
-  <a href="{% url 'run_index' %}">Return to runs index</a>
+  <a href="{% url 'profile' post.user.id %}">Return to profile</a>
 {% endblock %}
