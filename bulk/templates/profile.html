@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile.username }}'s Profile{% endblock %}
+
+
+{% block content %}
+
+  {{ profile.username }}
+  {% if user.is_authenticated %}
+    {% if following %}
+      <form action="" method="POST">
+        {% csrf_token %} 
+        <button type="submit" name="follow">Follow</button>
+      </form>
+    {% else %}
+      <form action="" method="POST">
+        {% csrf_token %} 
+        <button type="submit" name="unfollow">Unfollow</button>
+      </form>
+    {% endif %}
+  {% endif %}
+  <a href="{% url 'home' %}">Return to home</a>
+
+{% endblock %}

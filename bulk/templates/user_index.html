@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Users Index{% endblock %}
+
+
+{% block content %}
+
+  {% if all_users %}
+    <ul>
+      {% for item in all_users %}
+      <li>
+        <a href="{% url 'profile' item.id %}">{{ item.username }}</a>
+      </li>
+    {% endfor %}
+    </ul>
+  {% else %}
+    <p>No users are available.</p>
+  {% endif %}
+  
+  <a href="{% url 'home' %}">Return to home</a>
+
+{% endblock %}
