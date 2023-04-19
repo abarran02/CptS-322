@@ -8,6 +8,8 @@ from django.urls import reverse
 
 from .forms import SettingsForm
 from.forms import FoodForm
+from posts.models import Food
+from CalorieData import FoodData, DrinkData
 
 class SignUpView(generic.CreateView):
     form_class = UserCreationForm
@@ -49,13 +51,23 @@ def login_redirect(request):
         return HttpResponseRedirect(reverse('home'))
     
 def food_tracker(request):
+    resturants = FoodData().calorie_lookup
+
     if (request.method == "POST"):
         form = FoodForm(request.POST)
         #if form.is_valid(): 
             #return HttpResponseRedirect(reverse('home')) # returns home after submitting
     else:
         form = FoodForm()
-    return render(request, 'foodTracker.html',{'form': form})
+    return render(request, 'foodTracker.html',{'form': form, 'restName': resturants, 'foodName': resturants})
+"""
+def get_data(request):
+    template_name = 'foodTracker.html'
+    resturant_content = Food.objects.all()
+    tempList = ['1','2','3','4']
+    #resturant_content = Food().description
 
+    return render(request, template_name, {'restName': resturant_content, 'test':tempList})
+"""
 
 

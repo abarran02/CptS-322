@@ -1,9 +1,11 @@
 {% extends 'base.html' %}
+{% load posts}
+{% load posts/models/food.py}
 
 {% block title %}Food_Tracker{% endblock %}
 {% block content %}
+<!-- 
 
-<h3>Add food item</h3>
 <form method="post">
     {% csrf_token %}
     <table>
@@ -11,4 +13,26 @@
     </table>
     <button type="submit">Create</button>
 </form>
+-->
+
+<h3>Add food item</h3>
+<!--
+<label for="Resturants">Pick a Resturant:</label>
+<select name="Resturant-names">
+</select>
+-->
+<label for="Resturant_name">Pick a Resturant:</label>
+<select name="rest-names">
+    {% for name in restName %}
+    <option>{{name}}</option>
+    {% endfor %}
+</select>
+
+<label for="Food_name">Pick a Food Item:</label>
+<select name="food-name">
+    {% for name in foodName%}
+    <option>{{name}}</option>
+    {% endfor %}
+</select>
+
 {% endblock %}
