@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile.username }}'s Profile{% endblock %}
+
+
+{% block content %}
+
+  <ul>
+    <li>{{ profile.username }}</li>
+    <li>{{ profile.first_name }} {{ profile.last_name }}</li>
+    <li>{{ user_data.following.all.count }} following</li>
+    <li>{{ profile.following.all.count }} followers</li>
+  </ul>
+  
+  {% if not user_is_self %}
+    {% if following %}
+      <form action="" method="POST">
+        {% csrf_token %} 
+        <button type="submit" name="follow">Follow</button>
+      </form>
+    {% else %}
+      <form action="" method="POST">
+        {% csrf_token %} 
+        <button type="submit" name="unfollow">Unfollow</button>
+      </form>
+    {% endif %}
+  {% endif %}
+
+  Activities:
+  {% if user_entries %}
+    <ul>
+      {% for entry in user_entries %}
+        <li>
+          <a href="{% url 'detail' entry.id %}">{{ entry.title }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+  <ul>
+    <li>No activities available</li>
+  </ul>
+  {% endif %}
+
+  <a href="{% url 'home' %}">Return to home</a>
+
+{% endblock %}

@@ -4,26 +4,24 @@
 
 {% block content %}
 
-{% if post %}
+  {% if post %}
 
-<p>{{ post.title }}</p>
+    <p>{{ post.title }}</p>
 
-{% if metric %}
-<p>{{ post.distance }} km</p>
-{% else %}
-<p>{{ post.distance }} mi</p>
-{% endif %}
+    {% if metric %}
+      <p>{{ post.distance|floatformat:2 }} km</p>
+    {% else %}
+      <p>{{ post.distance|floatformat:2 }} mi</p>
+    {% endif %}
 
-<p>{{ post.time }}</p>
-<p>{{ post.calories }}</p>
+    <p>{{ post.time }}</p>
+    <p>{{ post.calories|floatformat:0 }} calories</p>
 
-{{ run_map|safe }}
+    {{ run_map|safe }}
 
-{% else %}
-Post is unavailable
-{% endif %}
+  {% else %}
+    Post is unavailable
+  {% endif %}
 
-
-<a href="{% url 'index' %}">Return to runs index</a>
-
+  <a href="{% url 'profile' post.user.id %}">Return to profile</a>
 {% endblock %}
