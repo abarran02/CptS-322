@@ -10,6 +10,7 @@ from .forms import SettingsForm
 from.forms import FoodForm
 from posts.models import Food
 from CalorieData import FoodData, DrinkData
+import json
 
 class SignUpView(generic.CreateView):
     form_class = UserCreationForm
@@ -59,15 +60,6 @@ def food_tracker(request):
             #return HttpResponseRedirect(reverse('home')) # returns home after submitting
     else:
         form = FoodForm()
-    return render(request, 'foodTracker.html',{'form': form, 'restName': resturants, 'foodName': resturants})
-"""
-def get_data(request):
-    template_name = 'foodTracker.html'
-    resturant_content = Food.objects.all()
-    tempList = ['1','2','3','4']
-    #resturant_content = Food().description
-
-    return render(request, template_name, {'restName': resturant_content, 'test':tempList})
-"""
+    return render(request, 'foodTracker.html', {'restName': json.dumps(resturants)})
 
 
