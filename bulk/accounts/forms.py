@@ -11,14 +11,6 @@ class SettingsForm(forms.Form):
 
 
 class FoodForm(ModelForm):
-    """
-    food =  forms.ChoiceField(
-        choices= FoodData().all_data,
-        required= False,
-        label= 'Food choices',
-        widget= forms.Select(attrs={'class': 'form-control','id': 'id_food'}),
-    )
-    """
     class Meta:
         model = Food
         fields = ('title',)
