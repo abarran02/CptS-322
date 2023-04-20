@@ -1,19 +1,17 @@
+from datetime import timedelta
 from math import asin, cos, radians, sin, sqrt
 
 import gpxpy
 import numpy as np
 import pandas as pd
 import plotly.express as px
-from django.conf import settings
 from django.db import models
 from gpxpy.gpx import GPX, GPXTrackPoint  # for typehinting
-from datetime import timedelta
+
+from .post import Post
 
 
-class Run(models.Model):
-    title = models.CharField(max_length=64)
-    pub_date = models.DateTimeField()
-    
+class Run(Post):
     # updated with __gpx_to_dataframe() and __update_geo_stats()
     distance = models.FloatField(null=True)
     time = models.DurationField(null=True)
@@ -21,15 +19,9 @@ class Run(models.Model):
 
     # updated with __update_fitness_stats()
     pace = models.CharField(max_length=8, null=True)
-    calories = models.IntegerField(null=True, blank=True)
 
-    # allow user GPX file upload to unique folder
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-    )
-    
-    gpx_upload = models.FileField(upload_to=f"uploads/{user}")
+    # allow user GPX file upload
+    gpx_upload = models.FileField(upload_to=f"uploads/")
 
     def __str__(self) -> str:
         return self.title

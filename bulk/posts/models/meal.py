@@ -1,19 +1,13 @@
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 from .food import Food
+from .post import Post
 
 
-class Meal(models.Model):
-    """A set of Food objects tied to a user"""
-    title = models.CharField(max_length=10)
-    pub_date = models.DateTimeField()
+class Meal(Post):
+    """A set of Food objects"""
     food_items = models.ManyToManyField(Food)
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-    )
 
     def __str__(self) -> str:
         return str([str(x) for x in self.food_items.all()])
