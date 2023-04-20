@@ -10,6 +10,7 @@ from .forms import SettingsForm
 from.forms import FoodForm
 from posts.models import Food
 from CalorieData import FoodData, DrinkData
+from django.template import loader
 import json
 
 class SignUpView(generic.CreateView):
@@ -53,13 +54,25 @@ def login_redirect(request):
     
 def food_tracker(request):
     resturants = FoodData().calorie_lookup
-
+    template = 'foodTracker.html'
     if (request.method == "POST"):
+        food_Item_POST = request.POST['display_foods']
+        resturant_Name_POST = request.POST['display_resturants']
+        calories_NUM = resturants[resturant_Name_POST][food_Item_POST]
+        #calories_POST = request.POST[calories_NUM]
+        #Food.objects.create(title = food_Item_POST, description = resturant_Name_POST)
+        new_Meal = Food(title= food_Item_POST, description= resturant_Name_POST, calories= calories_NUM)
+        new_Meal.save()
+       
+
+        #.object.create()
         form = FoodForm(request.POST)
         #if form.is_valid(): 
             #return HttpResponseRedirect(reverse('home')) # returns home after submitting
     else:
         form = FoodForm()
-    return render(request, 'foodTracker.html', {'restName': json.dumps(resturants)})
+    return render(request,  template, {"form":form,'restName': json.dumps(resturants)})
+
+   
 
 

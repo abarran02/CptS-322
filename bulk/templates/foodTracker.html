@@ -6,7 +6,7 @@
 
 <div class="Container">
     <h3>Add Foods</h3> 
-    <form>
+    <form method="POST" action="">
         {% csrf_token %}
         <div class="resturant_dropdown">
             <label for="">Pick a Resturant</label>
@@ -65,11 +65,7 @@
                 }
             }
 
-            document.getElementById("display_foods").innerHTML = names; //Sets the Id for select to that name
-            
-        }
-        function display(s1){
-            document.getElementById(s1).innerHTML = s1;
+            document.getElementById("display_foods").innerHTML = names; //Sets the Id for select to that name   
         }
     </script>
     
