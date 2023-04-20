@@ -12,8 +12,15 @@ class Post(models.Model):
     * user: ForeignKey
     """
     title = models.CharField(max_length=64)
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     pub_date = models.DateTimeField()
+
+    POST_TYPE_CHOICES = (
+        ("meal", "Meal"),
+        ("run", "Run"),
+        ("workout", "Workout")
+    )
+    post_type = models.CharField(max_length=8, choices=POST_TYPE_CHOICES)
 
     calories = models.IntegerField(null=True, blank=True)
     calories_positive = models.BooleanField()

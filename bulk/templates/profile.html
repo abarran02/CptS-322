@@ -25,10 +25,10 @@
     {% endif %}
   {% endif %}
 
-  Activities:
-  {% if user_entries %}
+  Recent posts:
+  {% if profile_posts %}
     <ul>
-      {% for entry in user_entries %}
+      {% for entry in profile_posts %}
         <li>
           <a href="{% url 'detail' entry.id %}">{{ entry.title }}</a>
         </li>
