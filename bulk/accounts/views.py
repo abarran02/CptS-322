@@ -7,9 +7,9 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from .forms import SettingsForm
-from.forms import FoodForm
+from.forms import FoodForm, WorkoutForm
 from posts.models import Food
-from CalorieData import FoodData, DrinkData
+from CalorieData import FoodData, DrinkData, WorkoutData
 from django.template import loader
 import json
 
@@ -54,6 +54,7 @@ def login_redirect(request):
     
 def food_tracker(request):
     resturants = FoodData().calorie_lookup
+    drinks = DrinkData().calorie_lookup
     template = 'foodTracker.html'
     if (request.method == "POST"):
         food_Item_POST = request.POST['display_foods']
@@ -61,17 +62,24 @@ def food_tracker(request):
         calories_NUM = resturants[resturant_Name_POST][food_Item_POST]
         #calories_POST = request.POST[calories_NUM]
         #Food.objects.create(title = food_Item_POST, description = resturant_Name_POST)
-        new_Meal = Food(title= food_Item_POST, description= resturant_Name_POST, calories= calories_NUM)
-        new_Meal.save()
+        #new_Meal = Food(title= food_Item_POST, description= resturant_Name_POST, calories= calories_NUM)
+        #new_Meal.save()
        
-
-        #.object.create()
         form = FoodForm(request.POST)
-        #if form.is_valid(): 
-            #return HttpResponseRedirect(reverse('home')) # returns home after submitting
     else:
         form = FoodForm()
-    return render(request,  template, {"form":form,'restName': json.dumps(resturants)})
+    return render(request,  template, {"form":form,'restName': json.dumps(resturants), "drinks":json.dumps(drinks)})
+
+def workout_tracker(request):
+    template = 'workoutTracker.html'
+    workouts = WorkoutData().all_data # list of all string workouts
+
+    if(request.method == "POST"):
+        form = WorkoutForm(request.POST)
+    else:
+        form = WorkoutForm()
+    return render(request, template, {"form":form,"workouts":json.dumps(workouts)})
+
 
    
 

@@ -1,7 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from posts.models import Food
-from CalorieData import FoodData, DrinkData
+from posts.models import Food, Workout
 testList = [1,2,3]
 
 class SettingsForm(forms.Form):
@@ -15,6 +14,12 @@ class FoodForm(ModelForm):
         model = Food
         fields = ('title',)
         restruantDescription = forms.CharField(label="Restraunt")
+
+class WorkoutForm(ModelForm):
+    class Meta:
+        model = Workout
+        fields = ('description',)
+
 
             
 

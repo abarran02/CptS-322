@@ -5,7 +5,7 @@
 
 
 <div class="Container">
-    <h3>Add Foods</h3> 
+    <h1>Add Foods</h1> 
     <form method="POST" action="">
         {% csrf_token %}
         <div class="resturant_dropdown">
@@ -27,7 +27,7 @@
 
         const food_data = document.currentScript.dataset;
         const foods = rest_data.resturant_name;
-        const obj_food = JSON.parse(resturant);
+        const obj_food = JSON.parse(foods);
 
         if (resturant.length == 0){ // show no option if at the end of list
             document.getElementById("resturant_name").innerHTML = "<option></option>" // sets the select option to null value
