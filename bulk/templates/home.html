@@ -1,33 +1,48 @@
 {% extends 'base.html' %}
-
 {% block title %}Home{% endblock %}
 
+
 {% block content %}
-{% if user.is_authenticated %}
-  Hi {{ user.username }}! Welcome to Bulk.
-  <ul>
-    <li>
-      <a href="{% url 'settings' %}">Settings</a>
-    </li>
-    <li>
-      <a href="{% url 'logout' %}">Logout</a>
-    </li>
-    <li>
-      <a href="{% url 'index' %}">Runs</a>
-    </li>
-    <li>
-      <a href="{% url 'food_tracker'%}">Food Tracker</a>
-    </li>
-  </ul>
-{% else %}
-  <p>You are not logged in</p>
-  <ul>
-    <li>
-      <a href="{% url 'login' %}">Login</a>
-    </li>
-    <li>
-      <a href="{% url 'signup' %}">Signup</a>
-    </li>
-  </ul>
-{% endif %}
+  {% if user.is_authenticated %}
+    Hi {{ user.username }}! Welcome to Bulk.
+    <ul>
+      <li>
+        <a href="{% url 'user_index' %}">Users</a>
+      </li>
+      <li>
+        <a href="{% url 'settings' %}">Settings</a>
+      </li>
+      <li>
+        <a href="{% url 'food_tracker'%}">Food Tracker</a>
+      </li>
+      <li>
+        <a href="{% url 'logout' %}">Logout</a>
+      </li>
+    </ul>
+
+    Following users' activities:
+    {% if latest_posts %}
+      <ul>
+        {% for post in latest_posts %}
+          <li>
+            <a href="{% url 'detail' post.id %}">{{ post.title }} by {{ post.user.username }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No posts are available.</p>
+    {% endif %}
+
+    <a href="{% url 'upload' %}">Upload</a>
+  {% else %}
+    <p>You are not logged in</p>
+    <ul>
+      <li>
+        <a href="{% url 'login' %}">Login</a>
+      </li>
+      <li>
+        <a href="{% url 'signup' %}">Signup</a>
+      </li>
+    </ul>
+  {% endif %}
 {% endblock %}

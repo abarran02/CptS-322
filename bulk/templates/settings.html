@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
+{% block title %}Settings{% endblock %}
 
-{% block title %}Home{% endblock %}
+
 {% block content %}
-{% if user.is_authenticated %}
-Bulk account settings for {{ user.username }}.
-<form action="{% url 'settings' %}" method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <input type="submit" value="Submit">
-</form>
+  {% if user.is_authenticated %}
+    Bulk account settings for {{ user.username }}.
+    <form action="{% url 'settings' %}" method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="Submit">
+    </form>
 
-{% endif %}
+  {% endif %}
 {% endblock %}
