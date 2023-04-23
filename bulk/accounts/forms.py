@@ -13,8 +13,7 @@ class SettingsForm(forms.Form):
 class FoodForm(ModelForm):
     class Meta:
         model = Food
-        fields = ('title',)
-        restruantDescription = forms.CharField(label="Restraunt")
+        fields = ('title','description','calories')
 
             
 

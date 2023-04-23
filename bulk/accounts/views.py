@@ -71,7 +71,7 @@ def food_tracker(request):
             #return HttpResponseRedirect(reverse('home')) # returns home after submitting
     else:
         form = FoodForm()
-    return render(request,  template, {"form":form,'restName': json.dumps(resturants)})
+    return render(request,  template, {"form":form,'restName': json.dumps(resturants), "allFoods":allFoods})
 
    
 
