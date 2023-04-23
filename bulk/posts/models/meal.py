@@ -10,7 +10,7 @@ class Meal(Post):
     food_items = models.ManyToManyField(Food)
 
     def __str__(self) -> str:
-        return str([str(x) for x in self.food_items.all()])
+        return self.title
 
     def add_food(self, restaurant: str, food: str):
         """Add Food object to `food_items` by matching restaurant and food title """
@@ -26,7 +26,7 @@ class Meal(Post):
             # create new object and add in one step
             new_food = self.food_items.create()
             new_food.data_from_food(restaurant, food)
-   
+
     def add_drink(self, drink: str):
         """Add Food object to `food_items` by matching drink title"""
         try:

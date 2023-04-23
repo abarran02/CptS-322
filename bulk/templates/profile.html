@@ -26,9 +26,9 @@
   {% endif %}
 
   Recent posts:
-  {% if profile_posts %}
+  {% if user_entries %}
     <ul>
-      {% for entry in profile_posts %}
+      {% for entry in user_entries %}
         <li>
           <a href="{% url 'detail' entry.id %}">{{ entry.title }}</a>
         </li>
@@ -41,5 +41,4 @@
   {% endif %}
 
   <a href="{% url 'home' %}">Return to home</a>
-
 {% endblock %}

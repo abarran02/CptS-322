@@ -1,14 +1,17 @@
 from datetime import datetime
+from json import dumps
 
 from accounts.models import UserData
+from CalorieData import FoodData
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
-from posts.models import Meal, Post, Run, Workout
+from posts.models import Food, Meal, Post, Run, Workout
 
-from .forms import GPXForm
+from .forms import FoodForm, GPXForm
 
 
 def home(request: HttpRequest):
@@ -32,7 +35,36 @@ def profile(request: HttpRequest, user_id):
     # get target user profile
     profile = get_object_or_404(User, pk=user_id)
     
+    following = False
+    user_is_self = profile.id == request.user.id
+    user_data = UserData.objects.get(user=request.user)
+    if not user_is_self:
+        # requesting user follows or unfollows the target profile
+        if 'follow' in request.POST:
+            user_data.following.add(profile)
+
+        if 'unfollow' in request.POST:
+            user_data.following.remove(profile)
+
+        # check whether requesting user is following target profile
+        if not user_data.following.filter(id=profile.id).exists():
+            following = True
+        else:
+            following = False
     
+    user_entries = Run.objects.filter(user=profile).order_by('-pub_date')
+
+    return render(request, "profile.html", {
+        "profile": profile,
+        "user_data": user_data,
+        "following": following,
+        "user_is_self": user_is_self,
+        "user_entries": user_entries
+    })
+
+@login_required
+def detail(request: HttpRequest, post_id):
+    post = get_object_or_404(Run, pk=post_id)
     user_data = UserData.objects.get(user=request.user)
     user_is_self = profile.id == request.user.id # whether user is viewing their own profile
     # determine whether requetsing user 
@@ -109,3 +141,25 @@ def gpx_form_upload(request: HttpRequest):
             return HttpResponseRedirect(reverse("detail", args=[new_run.id]))
     
     return render(request, "gpx_upload.html", {"form": form})
+
+@login_required
+def food_tracker(request):
+    resturants = FoodData().calorie_lookup
+    template = 'foodTracker.html'
+    if (request.method == "POST"):
+        food_Item_POST = request.POST['display_foods']
+        resturant_Name_POST = request.POST['display_resturants']
+        calories_NUM = resturants[resturant_Name_POST][food_Item_POST]
+        #calories_POST = request.POST[calories_NUM]
+        #Food.objects.create(title = food_Item_POST, description = resturant_Name_POST)
+        new_Meal = Food(title= food_Item_POST, description= resturant_Name_POST, calories= calories_NUM)
+        new_Meal.save()
+       
+
+        #.object.create()
+        form = FoodForm(request.POST)
+        #if form.is_valid(): 
+            #return HttpResponseRedirect(reverse('home')) # returns home after submitting
+    else:
+        form = FoodForm()
+    return render(request,  template, {"form":form,'restName': dumps(resturants)})
