@@ -1,15 +1,18 @@
 from datetime import datetime
+from json import dumps
 
 from accounts.models import UserData
+from CalorieData import FoodData
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from posts.models import Food
 from posts.models.run import Run
 
-from .forms import GPXForm
+from .forms import FoodForm, GPXForm
 
 
 def home(request: HttpRequest):
@@ -86,3 +89,25 @@ def gpx_form_upload(request: HttpRequest):
         form = GPXForm()
 
     return render(request, "gpx_upload.html", {"form": form})
+
+@login_required
+def food_tracker(request):
+    resturants = FoodData().calorie_lookup
+    template = 'foodTracker.html'
+    if (request.method == "POST"):
+        food_Item_POST = request.POST['display_foods']
+        resturant_Name_POST = request.POST['display_resturants']
+        calories_NUM = resturants[resturant_Name_POST][food_Item_POST]
+        #calories_POST = request.POST[calories_NUM]
+        #Food.objects.create(title = food_Item_POST, description = resturant_Name_POST)
+        new_Meal = Food(title= food_Item_POST, description= resturant_Name_POST, calories= calories_NUM)
+        new_Meal.save()
+       
+
+        #.object.create()
+        form = FoodForm(request.POST)
+        #if form.is_valid(): 
+            #return HttpResponseRedirect(reverse('home')) # returns home after submitting
+    else:
+        form = FoodForm()
+    return render(request,  template, {"form":form,'restName': dumps(resturants)})
