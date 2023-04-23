@@ -1,17 +1,14 @@
-from django.contrib.auth.forms import UserCreationForm
-from django.urls import reverse_lazy
-from django.views import generic
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
+from django.views import generic
 
 from .forms import SettingsForm
-from.forms import FoodForm
-from posts.models import Food
-from CalorieData import FoodData, DrinkData
-from django.template import loader
-import json
+from .models import UserData
+
 
 class SignUpView(generic.CreateView):
     form_class = UserCreationForm
@@ -26,21 +23,11 @@ def settings(request):
         form = SettingsForm(request.POST)
         # check whether it's valid:
         if form.is_valid():
-            request.user.first_name = form.cleaned_data['first_name']
-            request.user.last_name = form.cleaned_data['last_name']
-            request.user.email = form.cleaned_data['email']
-            request.user.save()
-            
+            handle_form(request.user, form.cleaned_data)
             return HttpResponseRedirect(reverse('home'))
-
     # if a GET (or any other method) we'll create a blank form
     else:
-        initial = {
-            'first_name':request.user.first_name,
-            'last_name':request.user.last_name,
-            'email':request.user.email
-        }
-        form = SettingsForm(initial=initial)
+        form = init_form(request.user)
 
     return render(request, 'settings.html', {'form': form})
 
@@ -51,28 +38,39 @@ def login_redirect(request):
         return HttpResponseRedirect(reverse('settings'))
     else:
         return HttpResponseRedirect(reverse('home'))
+
+def init_form(user) -> SettingsForm:
+    """Populate SettingsForm with exising user data, if available. Blank otherwise."""
+    initial = {
+        'first_name':user.first_name,
+        'last_name':user.last_name,
+        'email':user.email,
+    }
     
-def food_tracker(request):
-    resturants = FoodData().calorie_lookup
-    template = 'foodTracker.html'
-    if (request.method == "POST"):
-        food_Item_POST = request.POST['display_foods']
-        resturant_Name_POST = request.POST['display_resturants']
-        calories_NUM = resturants[resturant_Name_POST][food_Item_POST]
-        #calories_POST = request.POST[calories_NUM]
-        #Food.objects.create(title = food_Item_POST, description = resturant_Name_POST)
-        new_Meal = Food(title= food_Item_POST, description= resturant_Name_POST, calories= calories_NUM)
-        new_Meal.save()
-       
+    # attempt to get previous user data, ignore if not found
+    try:
+        user_data = UserData.objects.get(user=user)
+        initial['height'] = user_data.height
+        initial['weight'] = user_data.weight
+    except ObjectDoesNotExist:
+        pass
+    
+    return SettingsForm(initial=initial)
 
-        #.object.create()
-        form = FoodForm(request.POST)
-        #if form.is_valid(): 
-            #return HttpResponseRedirect(reverse('home')) # returns home after submitting
-    else:
-        form = FoodForm()
-    return render(request,  template, {"form":form,'restName': json.dumps(resturants)})
-
-   
-
-
+def handle_form(user, cleaned_data):
+    # update user info from form data
+    user.first_name = cleaned_data['first_name']
+    user.last_name = cleaned_data['last_name']
+    user.email = cleaned_data['email']
+    user.save()
+    
+    # update user's UserData object, or create if not yet created
+    UserData.objects.update_or_create(
+        user=user,
+        defaults={
+            'user':user,
+            'height':cleaned_data['height'],
+            'weight':cleaned_data['weight'],
+            'metric': True
+        }
+    )

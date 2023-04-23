@@ -1,20 +1,10 @@
 from django import forms
-from django.forms import ModelForm
-from posts.models import Food
-from CalorieData import FoodData, DrinkData
-testList = [1,2,3]
+from django.core.validators import MaxValueValidator, MinValueValidator
+
 
 class SettingsForm(forms.Form):
     first_name = forms.CharField(label='First name', max_length=150)
     last_name = forms.CharField(label='Last name', max_length=150)
     email = forms.EmailField(label='Email')
-
-
-class FoodForm(ModelForm):
-    class Meta:
-        model = Food
-        fields = ('title','description','calories')
-
-            
-
-        
+    height = forms.IntegerField(label='Height (cm)', validators=[MinValueValidator(0), MaxValueValidator(250)])
+    weight = forms.IntegerField(label='Weight (kg)', validators=[MinValueValidator(0), MaxValueValidator(250)])

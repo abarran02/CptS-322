@@ -9,7 +9,6 @@ class FoodData:
     fast calorie lookup given exact restaurant and food names
     * restaurants: list of all valid restaurants
     """
-
     def __init__(self):
         # get this file's directory to find foods.json
         json_path = os.path.join(os.path.dirname(__file__), 'foods.json')
