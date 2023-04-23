@@ -3,7 +3,6 @@ from json import dumps
 
 from accounts.models import UserData
 from CalorieData import FoodData
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponseRedirect, Http404
@@ -64,7 +63,6 @@ def profile(request: HttpRequest, user_id):
 
 @login_required
 def detail(request: HttpRequest, post_id):
-    post = get_object_or_404(Run, pk=post_id)
     user_data = UserData.objects.get(user=request.user)
     user_is_self = profile.id == request.user.id # whether user is viewing their own profile
     # determine whether requetsing user 
@@ -103,6 +101,7 @@ def post_detail(request: HttpRequest, post_id):
     if post_obj.post_type == "meal":
         # get post_obj as a Meal object
         post = Meal.objects.get(pk=post_id)
+        return HttpResponseRedirect(reverse("home"))
     
     elif post_obj.post_type == "run":
         # get post_obj as a Run object
@@ -119,6 +118,7 @@ def post_detail(request: HttpRequest, post_id):
     elif post_obj.post_type == "workout":
         # get post_obj as a Workout object
         post = Workout.objects.get(pk=post_id)
+        return HttpResponseRedirect(reverse("home"))
     
     else:
         raise Http404("Post not found.")
@@ -132,7 +132,7 @@ def gpx_form_upload(request: HttpRequest):
         if form.is_valid():
             new_run = Run.objects.create(
                 title=request.POST["title"],
-                pub_date=datetime.now(),          
+                pub_date=datetime.now(),
                 user=request.user,
                 gpx_upload=request.FILES["file"],
                 calories_positive=False,
@@ -143,23 +143,28 @@ def gpx_form_upload(request: HttpRequest):
     return render(request, "gpx_upload.html", {"form": form})
 
 @login_required
-def food_tracker(request):
+def add_meal(request):
     resturants = FoodData().calorie_lookup
-    template = 'foodTracker.html'
-    if (request.method == "POST"):
-        food_Item_POST = request.POST['display_foods']
-        resturant_Name_POST = request.POST['display_resturants']
-        calories_NUM = resturants[resturant_Name_POST][food_Item_POST]
-        #calories_POST = request.POST[calories_NUM]
-        #Food.objects.create(title = food_Item_POST, description = resturant_Name_POST)
-        new_Meal = Food(title= food_Item_POST, description= resturant_Name_POST, calories= calories_NUM)
-        new_Meal.save()
-       
-
-        #.object.create()
-        form = FoodForm(request.POST)
-        #if form.is_valid(): 
-            #return HttpResponseRedirect(reverse('home')) # returns home after submitting
-    else:
+    if not request.method == "POST":
         form = FoodForm()
-    return render(request,  template, {"form":form,'restName': dumps(resturants)})
+    else:
+        form = FoodForm(request.POST)
+        if form.is_valid:
+            food_name = request.POST['display_foods']
+            resturant = request.POST['display_resturants']
+
+            new_meal = Meal.objects.create(
+                title=food_name,
+                description=resturant,
+                pub_date=datetime.now(),
+                post_type="meal",
+                calories_positive=True,
+                user=request.user
+            )
+            new_meal.add_food(resturant, food_name)
+            return HttpResponseRedirect(reverse("detail", args=[new_meal.id]))
+
+    return render(request, "add_meal.html", {
+        "form": form, 
+        "restName": dumps(resturants)
+    })
