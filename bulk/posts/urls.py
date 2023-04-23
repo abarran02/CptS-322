@@ -5,10 +5,10 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('upload', views.gpx_form_upload, name='upload'),
-    path('posts/<int:post_id>/', views.detail, name='detail'),
-    path('food_tracker', views.food_tracker, name='food_tracker'),
+    path('', views.home, name='home'),
+    path('upload/', views.gpx_form_upload, name='upload'),
+    path('posts/<int:post_id>/', views.post_detail, name='detail'),
+    path('addmeal/', views.add_meal, name='add_meal'),
     path('users/', views.user_index, name='user_index'),
     path('users/<int:user_id>/', views.profile, name='profile')
 ]

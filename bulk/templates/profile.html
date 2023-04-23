@@ -25,7 +25,7 @@
     {% endif %}
   {% endif %}
 
-  Activities:
+  Recent posts:
   {% if user_entries %}
     <ul>
       {% for entry in user_entries %}
@@ -41,5 +41,4 @@
   {% endif %}
 
   <a href="{% url 'home' %}">Return to home</a>
-
 {% endblock %}

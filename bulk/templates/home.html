@@ -3,46 +3,34 @@
 
 
 {% block content %}
-  {% if user.is_authenticated %}
-    Hi {{ user.username }}! Welcome to Bulk.
+  Hi {{ user.username }}! Welcome to Bulk.
+  <ul>
+    <li>
+      <a href="{% url 'user_index' %}">Users</a>
+    </li>
+    <li>
+      <a href="{% url 'settings' %}">Settings</a>
+    </li>
+    <li>
+      <a href="{% url 'add_meal'%}">Add Meal</a>
+    </li>
+    <li>
+      <a href="{% url 'logout' %}">Logout</a>
+    </li>
+  </ul>
+
+  Recent posts:
+  {% if latest_posts %}
     <ul>
-      <li>
-        <a href="{% url 'user_index' %}">Users</a>
-      </li>
-      <li>
-        <a href="{% url 'settings' %}">Settings</a>
-      </li>
-      <li>
-        <a href="{% url 'food_tracker'%}">Food Tracker</a>
-      </li>
-      <li>
-        <a href="{% url 'logout' %}">Logout</a>
-      </li>
+      {% for post in latest_posts %}
+        <li>
+          <a href="{% url 'detail' post.id %}">{{ post.title }} by {{ post.user.username }}</a>
+        </li>
+      {% endfor %}
     </ul>
-
-    Following users' activities:
-    {% if latest_posts %}
-      <ul>
-        {% for post in latest_posts %}
-          <li>
-            <a href="{% url 'detail' post.id %}">{{ post.title }} by {{ post.user.username }}</a>
-          </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p>No posts are available.</p>
-    {% endif %}
-
-    <a href="{% url 'upload' %}">Upload</a>
   {% else %}
-    <p>You are not logged in</p>
-    <ul>
-      <li>
-        <a href="{% url 'login' %}">Login</a>
-      </li>
-      <li>
-        <a href="{% url 'signup' %}">Signup</a>
-      </li>
-    </ul>
+    <p>No posts are available.</p>
   {% endif %}
+
+  <a href="{% url 'upload' %}">Upload</a>
 {% endblock %}
