@@ -59,9 +59,9 @@ class WorkoutData:
         json_path = os.path.join(os.path.dirname(__file__), 'workouts.json')
         with open(json_path, 'r') as workout_file:
             self.all_data = loads(workout_file.read())
-
-    # To determine calores burned we use the Equation
-    # (METS * 3.5 * weight in kg) / 200
-    # For simlpicity we will use 5 for METS
+        
+        self.workout_name = []
+        for entry in self.all_data:
+            self.workout_name.append(entry)
 
         

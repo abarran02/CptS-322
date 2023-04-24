@@ -5,6 +5,7 @@ class Workout(models.Model):
     description = models.TextField()
     run = models.ForeignKey(Run, on_delete=models.CASCADE)
     calories = models.IntegerField()
+    reps = models.IntegerField()
 
     def calories_manual(self, calories: int):
         self.calories = calories

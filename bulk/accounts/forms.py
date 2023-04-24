@@ -12,13 +12,14 @@ class SettingsForm(forms.Form):
 class FoodForm(ModelForm):
     class Meta:
         model = Food
-        fields = ('title',)
-        restruantDescription = forms.CharField(label="Restraunt")
+        fields = '__all__'
+        #restruantDescription = forms.CharField(label="Restraunt")
 
 class WorkoutForm(ModelForm):
     class Meta:
         model = Workout
-        fields = ('description',)
+        #fields = '__all__'
+        fields = ('description', 'reps')
 
 
             

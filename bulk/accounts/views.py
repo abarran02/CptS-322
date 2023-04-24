@@ -8,7 +8,7 @@ from django.urls import reverse
 
 from .forms import SettingsForm
 from.forms import FoodForm, WorkoutForm
-from posts.models import Food
+from posts.models import Food, Workout
 from CalorieData import FoodData, DrinkData, WorkoutData
 from django.template import loader
 import json
@@ -60,11 +60,9 @@ def food_tracker(request):
         food_Item_POST = request.POST['display_foods']
         resturant_Name_POST = request.POST['display_resturants']
         calories_NUM = resturants[resturant_Name_POST][food_Item_POST]
-        #calories_POST = request.POST[calories_NUM]
-        #Food.objects.create(title = food_Item_POST, description = resturant_Name_POST)
-        #new_Meal = Food(title= food_Item_POST, description= resturant_Name_POST, calories= calories_NUM)
-        #new_Meal.save()
-       
+
+        Food.objects.create(title = food_Item_POST, description = resturant_Name_POST, calories = calories_NUM)
+
         form = FoodForm(request.POST)
     else:
         form = FoodForm()
@@ -75,6 +73,11 @@ def workout_tracker(request):
     workouts = WorkoutData().all_data # list of all string workouts
 
     if(request.method == "POST"):
+        workout_choice_POST = request.POST['workout_display']
+        number_reps_POST = request.POST['number_reps']
+
+        Workout.objects.create(description = workout_choice_POST, reps = number_reps_POST)
+    
         form = WorkoutForm(request.POST)
     else:
         form = WorkoutForm()
