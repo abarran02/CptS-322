@@ -5,21 +5,11 @@
 {% block content %}
   Hi {{ user.username }}! Welcome to Bulk.
   <ul>
-    <li>
-      <a href="{% url 'user_index' %}">Users</a>
-    </li>
-    <li>
-      <a href="{% url 'settings' %}">Settings</a>
-    </li>
-    <li>
-      <a href="{% url 'add_meal'%}">Add Meal</a>
-    </li>
-    <li>
-      <a href="{% url 'workout_tracker'%}">Workout Tracker</a>
-    </li>
-    <li>
-      <a href="{% url 'logout' %}">Logout</a>
-    </li>
+    {% for view, label in links %}
+      <li>
+        <a href="{% url view %}">{{ label }}</a>
+      </li>
+    {% endfor %}
   </ul>
 
   Recent posts:

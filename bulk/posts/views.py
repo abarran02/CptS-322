@@ -17,12 +17,23 @@ def home(request: HttpRequest):
     if not request.user.is_authenticated:
         return render(request, "home_guest.html")
     else:
+        # list of tuples with format (view, label)
+        links = [
+            ("user_index", "Users"),
+            ("settings", "Settings"),
+            ("add_meal", "Add Meal"),
+            ("workout_tracker", "Workout Tracker"),
+            ("logout", "Logout")
+        ]
         # get list of users that logged in user is following
         user_data = UserData.objects.get(user=request.user)
         following = user_data.following.all()
         # get latest posts by following users
         latest_posts = Post.objects.filter(user__in=following).order_by('-pub_date')
-        return render(request, "home.html", {"latest_posts": latest_posts})
+        return render(request, "home.html", {
+            "latest_posts": latest_posts,
+            "links": links
+        })
 
 @login_required
 def user_index(request: HttpRequest):
@@ -53,42 +64,12 @@ def profile(request: HttpRequest, user_id):
     
     user_entries = Run.objects.filter(user=profile).order_by('-pub_date')
 
-    return render(request, "profile.html", {
+    return render(request, "details/profile.html", {
         "profile": profile,
         "user_data": user_data,
         "following": following,
         "user_is_self": user_is_self,
         "user_entries": user_entries
-    })
-
-@login_required
-def detail(request: HttpRequest, post_id):
-    user_data = UserData.objects.get(user=request.user)
-    user_is_self = profile.id == request.user.id # whether user is viewing their own profile
-    # determine whether requetsing user 
-    following = False
-    if not user_is_self:
-        # requesting user follows or unfollows the target profile
-        if 'follow' in request.POST:
-            user_data.following.add(profile)
-
-        if 'unfollow' in request.POST:
-            user_data.following.remove(profile)
-
-        # check whether requesting user is following target profile
-        if not user_data.following.filter(id=profile.id).exists():
-            following = True
-        else:
-            following = False
-    
-    profile_posts = Post.objects.filter(user=profile).order_by('-pub_date')
-
-    return render(request, "profile.html", {
-        "profile": profile,
-        "user_data": user_data,
-        "following": following,
-        "user_is_self": user_is_self,
-        "profile_posts": profile_posts
     })
 
 @login_required
@@ -109,10 +90,10 @@ def post_detail(request: HttpRequest, post_id):
         # update run stats and get plotly mapbox html
         run_map = post.generate_stats_and_map(weight=user_data.weight, metric=user_data.metric)
 
-        return render(request, "run_detail.html", {
-            'post': post,
-            'metric': user_data.metric,
-            'run_map': run_map
+        return render(request, "details/run_detail.html", {
+            "post": post,
+            "metric": user_data.metric,
+            "run_map": run_map
         })
     
     elif post_obj.post_type == "workout":
@@ -141,7 +122,7 @@ def gpx_form_upload(request: HttpRequest):
             )
             return HttpResponseRedirect(reverse("detail", args=[new_run.id]))
     
-    return render(request, "gpx_upload.html", {"form": form})
+    return render(request, "create/gpx_upload.html", {"form": form})
 
 @login_required
 def add_meal(request):
@@ -166,7 +147,7 @@ def add_meal(request):
             new_meal.add_food(restaurant, food_name)
             return HttpResponseRedirect(reverse("detail", args=[new_meal.id]))
 
-    return render(request, "add_meal.html", {
+    return render(request, "create/add_meal.html", {
         "form": form, 
         "restName": dumps(resturants)
     })
@@ -192,7 +173,7 @@ def workout_tracker(request):
     
         form = WorkoutForm(request.POST)
     
-    return render(request, "workoutTracker.html", {
+    return render(request, "create/workoutTracker.html", {
         "form":form,
         "workouts":dumps(workouts)
     })
