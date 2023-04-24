@@ -2,15 +2,15 @@ from datetime import datetime
 from json import dumps
 
 from accounts.models import UserData
-from CalorieData import FoodData
+from CalorieData import FoodData, WorkoutData
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpRequest, HttpResponseRedirect, Http404
+from django.http import Http404, HttpRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
-from posts.models import Food, Meal, Post, Run, Workout
+from posts.models import Meal, Post, Run, Workout
 
-from .forms import FoodForm, GPXForm
+from .forms import FoodForm, GPXForm, WorkoutForm
 
 
 def home(request: HttpRequest):
@@ -133,6 +133,7 @@ def gpx_form_upload(request: HttpRequest):
             new_run = Run.objects.create(
                 title=request.POST["title"],
                 pub_date=datetime.now(),
+                private=False,
                 user=request.user,
                 gpx_upload=request.FILES["file"],
                 calories_positive=False,
@@ -151,20 +152,47 @@ def add_meal(request):
         form = FoodForm(request.POST)
         if form.is_valid:
             food_name = request.POST['display_foods']
-            resturant = request.POST['display_resturants']
+            restaurant = request.POST['display_resturants']
 
             new_meal = Meal.objects.create(
                 title=food_name,
-                description=resturant,
+                description=restaurant,
                 pub_date=datetime.now(),
+                private=False,
                 post_type="meal",
                 calories_positive=True,
                 user=request.user
             )
-            new_meal.add_food(resturant, food_name)
+            new_meal.add_food(restaurant, food_name)
             return HttpResponseRedirect(reverse("detail", args=[new_meal.id]))
 
     return render(request, "add_meal.html", {
         "form": form, 
         "restName": dumps(resturants)
+    })
+
+@login_required
+def workout_tracker(request):
+    workouts = WorkoutData().all_data # list of all string workouts
+    if not request.method == "POST":
+        form = WorkoutForm()
+    else:    
+        workout_choice = request.POST['workout_display']
+        number_reps = request.POST['number_reps']
+
+        Workout.objects.create(
+            title=workout_choice,
+            pub_date=datetime.now(),
+            private=False,
+            post_type="workout",
+            calories_positive=False,
+            user=request.user,
+            reps=number_reps
+        )
+    
+        form = WorkoutForm(request.POST)
+    
+    return render(request, "workoutTracker.html", {
+        "form":form,
+        "workouts":dumps(workouts)
     })

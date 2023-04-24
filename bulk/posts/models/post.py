@@ -8,6 +8,7 @@ class Post(models.Model):
     * title: CharField
     * description: TextField
     * pub_date: DateTimeField
+    * private: BooleanField
     * post_type: CharField with choices "meal", "run", or "workout"
     * calories: IntegerField
     * calories_positive: BooleanField, how to count towards total, burn (-, False) vs consume (+, True)
@@ -16,6 +17,7 @@ class Post(models.Model):
     title = models.CharField(max_length=64)
     description = models.TextField(null=True, blank=True)
     pub_date = models.DateTimeField()
+    private = models.BooleanField()
 
     POST_TYPE_CHOICES = (
         ("meal", "Meal"),

@@ -11,15 +11,3 @@ class SettingsForm(forms.Form):
     height = forms.IntegerField(label='Height (cm)', validators=[MinValueValidator(0), MaxValueValidator(250)])
     weight = forms.IntegerField(label='Weight (kg)', validators=[MinValueValidator(0), MaxValueValidator(250)])
     location = forms.CharField(label='Location', max_length=64)
-
-class FoodForm(ModelForm):
-    class Meta:
-        model = Food
-        fields = '__all__'
-        #restruantDescription = forms.CharField(label="Restraunt")
-
-class WorkoutForm(ModelForm):
-    class Meta:
-        model = Workout
-        #fields = '__all__'
-        fields = ('description', 'reps')

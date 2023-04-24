@@ -54,7 +54,6 @@ class DrinkData:
             self.calorie_lookup[drink_name] = calories
 
 class WorkoutData:
-
     def __init__(self):
         json_path = os.path.join(os.path.dirname(__file__), 'workouts.json')
         with open(json_path, 'r') as workout_file:
@@ -63,5 +62,3 @@ class WorkoutData:
         self.workout_name = []
         for entry in self.all_data:
             self.workout_name.append(entry)
-
-        
