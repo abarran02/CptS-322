@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Runs Index{% endblock %}
+
+
+{% block content %}
+
+  {% if post %}
+
+    <p>{{ post.title }}</p>
+
+    {% if metric %}
+      <p>{{ post.distance|floatformat:2 }} km</p>
+    {% else %}
+      <p>{{ post.distance|floatformat:2 }} mi</p>
+    {% endif %}
+
+    <p>{{ post.time }}</p>
+    <p>{{ post.calories|floatformat:0 }} calories</p>
+
+    {{ run_map|safe }}
+
+  {% else %}
+    Post is unavailable
+  {% endif %}
+
+  <a href="{% url 'profile' post.user.id %}">Return to profile</a>
+{% endblock %}

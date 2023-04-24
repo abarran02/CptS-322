@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Add Meal{% endblock %}
+
+
+{% block content %}
+  <div class="Container">
+    <h3>Add Meal</h3> 
+    <form method="POST" action="">
+      {% csrf_token %}
+      <div class="resturant_dropdown">
+        <label for="">Pick a Resturant</label>
+        <select name="display_resturants" id="display_resturants" onchange="populate('display_resturants', 'display_foods')">
+        </select>
+      </div>
+      <div class="food_dropdown">
+        <label>Pick a Food</label>
+        <select name="display_foods" id="display_foods"></select>
+      </div>
+      <button type="submit" name="food_choice" onchange="display('display_foods')">Submit</button>
+    </form>
+  </div>
+
+  <script type="text/javascript" data-resturant_name="{{restName}}">
+    const rest_data = document.currentScript.dataset;
+    const resturant = rest_data.resturant_name;
+    const obj_rest = JSON.parse(resturant);  // converts JSON file to a parseable object with JSON.parse()
+
+    const food_data = document.currentScript.dataset;
+    const foods = rest_data.resturant_name;
+    const obj_food = JSON.parse(resturant);
+
+    if (resturant.length == 0){ // show no option if at the end of list
+      document.getElementById("resturant_name").innerHTML = "<option></option>" // sets the select option to null value
+    }
+    else{
+      var names = "";
+      for(rest_names in obj_rest){ // loops though and changes the names string to each value in obj i.e Chiptole to KFC
+        names += "<option value='"+ rest_names +"'>" + rest_names + "</option>";
+      }
+    }
+    document.getElementById("display_resturants").innerHTML = names; //Sets the Id for select to that name
+
+    function populate(s1,s2){
+      var s1 = document.getElementById(s1);
+      var s2 = document.getElementById(s2);
+
+      s2.innerHTML = ""
+      current_resturant = s1.value;
+      
+      
+      if (foods.length == 0){ // show no option if at the end of list
+      document.getElementById("display_foods").innerHTML = "<option></option>" // sets the select option to null value
+      }
+      else{
+        var names = "";
+        for(food_names in obj_food){ // loops though and changes the names string to each value in obj i.e Chiptole to KFC
+          //document.write(food_names);
+          if(food_names == current_resturant){
+            let foodDict = obj_food[current_resturant];
+            let keyValues = Object.keys(foodDict);
+            for(i = 0; i < keyValues.length; i++){
+              names += "<option value='"+ keyValues[i] +"'>" + keyValues[i] + "</option>";
+            }
+          }
+        }
+      }
+
+      document.getElementById("display_foods").innerHTML = names; //Sets the Id for select to that name   
+    }
+  </script>
+{% endblock %}
