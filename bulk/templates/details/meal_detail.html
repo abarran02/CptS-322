@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}{{ post.title }}{% endblock %}
+
+
+{% block content %}
+  <p>Meal by {{ post.user.username }}</p>
+  <p>{{ post.title }} from {{ post.description }}</p>
+  <p>{{ post.calories }} calories</p>
+
+  <a href="{% url 'profile' post.user.id %}">Return to profile</a>
+{% endblock %}

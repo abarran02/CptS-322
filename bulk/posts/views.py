@@ -82,7 +82,9 @@ def post_detail(request: HttpRequest, post_id):
     if post_obj.post_type == "meal":
         # get post_obj as a Meal object
         post = Meal.objects.get(pk=post_id)
-        return HttpResponseRedirect(reverse("home"))
+        return render(request, "details/meal_detail.html", {
+            "post": post,
+        })
     
     elif post_obj.post_type == "run":
         # get post_obj as a Run object
@@ -99,7 +101,9 @@ def post_detail(request: HttpRequest, post_id):
     elif post_obj.post_type == "workout":
         # get post_obj as a Workout object
         post = Workout.objects.get(pk=post_id)
-        return HttpResponseRedirect(reverse("home"))
+        return render(request, "details/workout_detail.html", {
+            "post": post,
+        })
     
     else:
         raise Http404("Post not found.")
@@ -161,7 +165,7 @@ def workout_tracker(request):
         workout_choice = request.POST['workout_display']
         number_reps = request.POST['number_reps']
 
-        Workout.objects.create(
+        new_workout = Workout.objects.create(
             title=workout_choice,
             pub_date=datetime.now(),
             private=False,
@@ -172,6 +176,7 @@ def workout_tracker(request):
         )
     
         form = WorkoutForm(request.POST)
+        return HttpResponseRedirect(reverse("detail", args=[new_workout.id]))
     
     return render(request, "create/workoutTracker.html", {
         "form":form,
