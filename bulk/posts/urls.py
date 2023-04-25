@@ -9,6 +9,7 @@ urlpatterns = [
     path('upload/', views.gpx_form_upload, name='upload'),
     path('posts/<int:post_id>/', views.post_detail, name='detail'),
     path('addmeal/', views.add_meal, name='add_meal'),
+    path('workout_tracker', views.workout_tracker, name='workout_tracker'),
     path('users/', views.user_index, name='user_index'),
     path('users/<int:user_id>/', views.profile, name='profile')
 ]

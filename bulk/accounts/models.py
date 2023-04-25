@@ -13,6 +13,8 @@ class UserData(models.Model):
     height = models.IntegerField()
     weight = models.IntegerField()
     metric = models.BooleanField()
+
+    daily_calories_goal = models.IntegerField(null=True, blank=True)
     
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
