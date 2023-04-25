@@ -9,6 +9,7 @@ class FoodData:
     fast calorie lookup given exact restaurant and food names
     * restaurants: list of all valid restaurants
     """
+
     def __init__(self):
         # get this file's directory to find foods.json
         json_path = os.path.join(os.path.dirname(__file__), 'foods.json')
@@ -51,3 +52,13 @@ class DrinkData:
             drink_name = entry['drinkName']
             calories = entry['calories']
             self.calorie_lookup[drink_name] = calories
+
+class WorkoutData:
+    def __init__(self):
+        json_path = os.path.join(os.path.dirname(__file__), 'workouts.json')
+        with open(json_path, 'r') as workout_file:
+            self.all_data = loads(workout_file.read())
+        
+        self.workout_name = []
+        for entry in self.all_data:
+            self.workout_name.append(entry)

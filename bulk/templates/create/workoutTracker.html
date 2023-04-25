@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Workout Tracker{% endblock %}
+{% block content %}
+
+<div class="Container">
+    <h1>Workout Tracker</h1>
+    <form method="POST" action="">
+        {% csrf_token %}
+        <div class="workout_dropdown">
+            <label for="">Pick a Workout</label>
+            <select name="workout_display" id="workout_display" onchange="display_reps()">
+            </select>
+        </div>
+        <div class="input_reps">
+            <label  for="">Number of Reps</label>
+            <input  id="number_reps" name="number_reps">
+            </input> 
+            <button type="submit" name="workout_choice">Submit</button>
+        </div>
+
+
+        <script data-workout_name="{{workouts}}">
+            const workout_data = document.currentScript.dataset;
+            const workout_names = workout_data.workout_name;
+            const obj_work = JSON.parse(workout_names);
+
+            if (workout_names.length == 0){ // show no option if at the end of list
+            document.getElementById("workout_display").innerHTML = "<option></option>" // sets the select option to null value
+            }
+            else{
+                var names = "";
+                for(nm in obj_work){ // loops though and changes the names string to each value in obj i.e pushups etc.
+                    names += "<option value='"+ obj_work[nm] +"'>" + obj_work[nm] + "</option>";
+                }
+            }
+            document.getElementById("workout_display").innerHTML = names; //Sets the Id for select to that name           
+
+
+            function display_reps(){
+                var nm = "";
+                for(i = 1; i < 51; i++){
+                    nm += "<option>" + i + "</option>";
+                }
+                document.getElementById("number_reps").innerHTML = nm;
+            }
+
+
+        </script>
+    </form>
+</div>
+
+{% endblock %}

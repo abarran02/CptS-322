@@ -6,14 +6,18 @@ class Post(models.Model):
     """
     Parent model for Meal, Run, and Workout with the following data members:
     * title: CharField
+    * description: TextField
     * pub_date: DateTimeField
+    * private: BooleanField
+    * post_type: CharField with choices "meal", "run", or "workout"
     * calories: IntegerField
-    * calories_positive: BooleanField (how to count towards total, burn vs consume)
-    * user: ForeignKey
+    * calories_positive: BooleanField, how to count towards total, burn (-, False) vs consume (+, True)
+    * user: ForeignKey for User model
     """
     title = models.CharField(max_length=64)
     description = models.TextField(null=True, blank=True)
     pub_date = models.DateTimeField()
+    private = models.BooleanField()
 
     POST_TYPE_CHOICES = (
         ("meal", "Meal"),
