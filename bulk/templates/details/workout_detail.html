@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}{{ post.title }}{% endblock %}
+
+
+{% block content %}
+  <p>Activity by {{ post.user.username }}</p>
+  <p>{{ post.reps }}x {{ post.title }}</p>
+
+  {% if post.time %}
+    <p>{{ post.time }}</p>
+    <p>{{ post.calories }}</p>
+  {% endif %}
+
+  <a href="{% url 'profile' post.user.id %}">Return to profile</a>
+{% endblock %}

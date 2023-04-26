@@ -82,7 +82,9 @@ def post_detail(request: HttpRequest, post_id):
     if post_obj.post_type == "meal":
         # get post_obj as a Meal object
         post = Meal.objects.get(pk=post_id)
-        return HttpResponseRedirect(reverse("home"))
+        return render(request, "details/meal_detail.html", {
+            "post": post,
+        })
     
     elif post_obj.post_type == "run":
         # get post_obj as a Run object
@@ -97,7 +99,9 @@ def post_detail(request: HttpRequest, post_id):
     elif post_obj.post_type == "workout":
         # get post_obj as a Workout object
         post = Workout.objects.get(pk=post_id)
-        return HttpResponseRedirect(reverse("home"))
+        return render(request, "details/workout_detail.html", {
+            "post": post,
+        })
     
     else:
         raise Http404("Post not found.")
