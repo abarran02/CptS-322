@@ -88,12 +88,10 @@ def post_detail(request: HttpRequest, post_id):
         # get post_obj as a Run object
         post = Run.objects.get(pk=post_id)
         # update run stats and get plotly mapbox html
-        run_map = post.generate_stats_and_map(weight=user_data.weight, metric=user_data.metric)
-
         return render(request, "details/run_detail.html", {
             "post": post,
             "metric": user_data.metric,
-            "run_map": run_map
+            "run_map": post.gpx_map,
         })
     
     elif post_obj.post_type == "workout":
@@ -120,6 +118,11 @@ def gpx_form_upload(request: HttpRequest):
                 calories_positive=False,
                 post_type="run",
             )
+
+            # get requesting user data to generate fitness stats and map
+            user_data = UserData.objects.get(user=request.user)
+            new_run.generate_stats_and_map(weight=user_data.weight, metric=user_data.metric)
+
             return HttpResponseRedirect(reverse("detail", args=[new_run.id]))
     
     return render(request, "create/gpx_upload.html", {"form": form})

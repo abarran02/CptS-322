@@ -22,6 +22,7 @@ class Run(Post):
 
     # allow user GPX file upload
     gpx_upload = models.FileField(upload_to=f"uploads/")
+    gpx_map = models.TextField(null=True, blank=True)
 
     def __str__(self) -> str:
         return self.title
@@ -59,7 +60,8 @@ class Run(Post):
 
     def generate_stats_and_map(self, weight: int = 0, metric: bool = True):
         df = self.generate_stats(weight=weight, metric=metric)
-        return self.generate_mapbox_html(df=df)
+        self.gpx_map = self.generate_mapbox_html(df=df)
+        self.save()
 
     def __update_geo_stats(self, previous: GPXTrackPoint, current: GPXTrackPoint) -> None:
         """Add distance and elevation between given GPXTrackPoints"""
