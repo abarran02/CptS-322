@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
-{% block title %}{{ profile.username }}'s Profile{% endblock %}
+{% block title %}{{ target_profile.username }}'s Profile{% endblock %}
 
 
 {% block content %}
 
   <ul>
-    <li>{{ profile.username }}</li>
-    <li>{{ profile.first_name }} {{ profile.last_name }}</li>
+    <li>{{ target_profile.username }}</li>
+    <li>{{ target_profile.first_name }} {{ target_profile.last_name }}</li>
     <li>{{ user_data.following.all.count }} following</li>
-    <li>{{ profile.following.all.count }} followers</li>
+    <li>{{ target_profile.following.all.count }} followers</li>
   </ul>
   
-  {% if not user_is_self %}
+  {% if not user_requests_self %}
     {% if following %}
       <form action="" method="POST">
         {% csrf_token %} 
@@ -26,12 +26,14 @@
   {% endif %}
 
   Recent posts:
-  {% if user_entries %}
+  {% if profile_posts %}
     <ul>
-      {% for entry in user_entries %}
-        <li>
-          <a href="{% url 'detail' entry.id %}">{{ entry.title }}</a>
-        </li>
+      {% for post in profile_posts %}
+        {% if not post.private or user_requests_self %}
+          <li>
+            <a href="{% url 'detail' post.id %}">{{ post.title }}</a>
+          </li>
+        {% endif %}
       {% endfor %}
     </ul>
   {% else %}

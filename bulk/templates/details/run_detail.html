@@ -3,25 +3,19 @@
 
 
 {% block content %}
-
-  {% if post %}
-
-    <p>{{ post.title }}</p>
+    <p>{{ post.title }} by {{ post.user.username }}</p>
+    <p>{{ post.pub_date|date:"m/d/Y" }} at {{ post.pub_date|date:"H:i:s" }}</p>
+    <p>{{ post.time }}</p>
 
     {% if metric %}
-      <p>{{ post.distance|floatformat:2 }} km</p>
+      <p>{{ post.distance|floatformat:2 }} km at {{ post.pace }}</p>
     {% else %}
-      <p>{{ post.distance|floatformat:2 }} mi</p>
+      <p>{{ post.distance|floatformat:2 }} mi at {{ post.pace }}</p>
     {% endif %}
 
-    <p>{{ post.time }}</p>
     <p>{{ post.calories|floatformat:0 }} calories</p>
 
     {{ run_map|safe }}
-
-  {% else %}
-    Post is unavailable
-  {% endif %}
 
   <a href="{% url 'profile' post.user.id %}">Return to profile</a>
 {% endblock %}

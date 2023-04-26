@@ -43,39 +43,44 @@ def user_index(request: HttpRequest):
 @login_required
 def profile(request: HttpRequest, user_id):
     # get target user profile
-    profile = get_object_or_404(User, pk=user_id)
+    target_profile = get_object_or_404(User, pk=user_id)
     
     following = False
-    user_is_self = profile.id == request.user.id
-    user_data = UserData.objects.get(user=request.user)
-    if not user_is_self:
+    user_requests_self = target_profile.id == request.user.id
+    requesting_user_data = UserData.objects.get(user=request.user)
+    # user is requesting another user's profile
+    if not user_requests_self:
         # requesting user follows or unfollows the target profile
         if 'follow' in request.POST:
-            user_data.following.add(profile)
-
-        if 'unfollow' in request.POST:
-            user_data.following.remove(profile)
+            requesting_user_data.following.add(target_profile)
+        elif 'unfollow' in request.POST:
+            requesting_user_data.following.remove(target_profile)
 
         # check whether requesting user is following target profile
-        if not user_data.following.filter(id=profile.id).exists():
+        if not requesting_user_data.following.filter(id=target_profile.id).exists():
             following = True
         else:
             following = False
     
-    user_entries = Run.objects.filter(user=profile).order_by('-pub_date')
+    profile_posts = Run.objects.filter(user=target_profile).order_by('-pub_date')
 
     return render(request, "details/profile.html", {
-        "profile": profile,
-        "user_data": user_data,
+        "target_profile": target_profile,
         "following": following,
-        "user_is_self": user_is_self,
-        "user_entries": user_entries
+        "user_requests_self": user_requests_self,
+        "requesting_user_data": requesting_user_data,
+        "profile_posts": profile_posts
     })
 
 @login_required
 def post_detail(request: HttpRequest, post_id):
     # attempt to get requested post
     post_obj = get_object_or_404(Post, pk=post_id)
+    # check that user has permission to view
+    if post_obj.private and not post_obj.user.id == request.user.id:
+        # otherwise return user to homepage
+        return HttpResponseRedirect(reverse("home"))
+    
     user_data = UserData.objects.get(user=request.user)
 
     # determine post type and corresponding template to return
@@ -116,7 +121,7 @@ def gpx_form_upload(request: HttpRequest):
             new_run = Run.objects.create(
                 title=request.POST["title"],
                 pub_date=datetime.now(),
-                private=False,
+                private=request.POST["private"]=="on",
                 user=request.user,
                 gpx_upload=request.FILES["file"],
                 calories_positive=False,
@@ -146,7 +151,7 @@ def add_meal(request):
                 title=food_name,
                 description=restaurant,
                 pub_date=datetime.now(),
-                private=False,
+                private=True,
                 post_type="meal",
                 calories_positive=True,
                 user=request.user
