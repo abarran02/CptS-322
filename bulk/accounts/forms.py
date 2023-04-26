@@ -10,4 +10,5 @@ class SettingsForm(forms.Form):
     email = forms.EmailField(label='Email')
     height = forms.IntegerField(label='Height (cm)', validators=[MinValueValidator(0), MaxValueValidator(250)])
     weight = forms.IntegerField(label='Weight (kg)', validators=[MinValueValidator(0), MaxValueValidator(250)])
+    calories_goal = forms.IntegerField(label='Calorie burn goal', validators=[MinValueValidator(0), MaxValueValidator(10000)])
     location = forms.CharField(label='Location', max_length=64)

@@ -8,7 +8,7 @@ import plotly.express as px
 from django.db import models
 from gpxpy.gpx import GPX, GPXTrackPoint  # for typehinting
 
-from .post import Post
+from .post import Post, calculate_calories_burned
 
 
 class Run(Post):
@@ -22,6 +22,7 @@ class Run(Post):
 
     # allow user GPX file upload
     gpx_upload = models.FileField(upload_to=f"uploads/")
+    gpx_map = models.TextField(null=True, blank=True)
 
     def __str__(self) -> str:
         return self.title
@@ -59,7 +60,8 @@ class Run(Post):
 
     def generate_stats_and_map(self, weight: int = 0, metric: bool = True):
         df = self.generate_stats(weight=weight, metric=metric)
-        return self.generate_mapbox_html(df=df)
+        self.gpx_map = self.generate_mapbox_html(df=df)
+        self.save()
 
     def __update_geo_stats(self, previous: GPXTrackPoint, current: GPXTrackPoint) -> None:
         """Add distance and elevation between given GPXTrackPoints"""
@@ -105,11 +107,11 @@ class Run(Post):
     def __update_fitness_stats(self, weight: int = 0, metric: bool = True) -> None:
         """Calculate pace for total distance and calories burned for total time"""
         distance = self.distance
-        seconds = self.time
+        duration = self.time
 
         # calculate pace to string mm:ss/km and calories burned
-        self.pace = calculate_pace(seconds, distance, metric)
-        self.calories = calculate_calories_burned(seconds, weight, metric)
+        self.pace = calculate_pace(duration, distance, metric)
+        self.calories = calculate_calories_burned(10, duration, weight, metric)
         self.save()
 
 # from https://stackoverflow.com/questions/4913349/haversine-formula-in-python-bearing-and-distance-between-two-gps-points
@@ -192,11 +194,3 @@ def calculate_pace(duration: timedelta, distance: float, metric: bool = True) ->
     seconds = round(minutes[1])
     # lead seconds with one zero if single digit
     return f"{int(minutes[0])}:{seconds:02d}/{unit}"
-
-def calculate_calories_burned(duration: timedelta, weight: int, metric: bool = True) -> float:
-    """Calculate activity calories burned using the equation = MET * weight (kg) * time (hrs)"""
-    # https://marathonhandbook.com/how-many-calories-burned-running-calculator/#met-formula
-    if not metric:
-        # convert kilograms to pounds
-        weight /= 2.205
-    return 10 * weight * (duration.seconds / 3600)

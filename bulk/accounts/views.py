@@ -52,6 +52,7 @@ def init_form(user) -> SettingsForm:
         user_data = UserData.objects.get(user=user)
         initial["height"] = user_data.height
         initial["weight"] = user_data.weight
+        initial["calories_goal"] = user_data.daily_calories_goal
         initial["location"] = user_data.location
     except ObjectDoesNotExist:
         pass
@@ -69,9 +70,10 @@ def handle_form(user, cleaned_data):
     user_data = UserData.objects.update_or_create(
         user=user,
         defaults={
-            "user":user,
-            "height":cleaned_data["height"],
-            "weight":cleaned_data["weight"],
+            "user": user,
+            "height": cleaned_data["height"],
+            "weight": cleaned_data["weight"],
+            "daily_calories_goal": cleaned_data["calories_goal"],
             "metric": True,
             "location": cleaned_data["location"]
         }
