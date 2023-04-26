@@ -199,26 +199,25 @@ def add_meal(request):
 
 @login_required
 def workout_tracker(request):
-    workouts = WorkoutData().all_data # list of all string workouts
     if not request.method == "POST":
         form = WorkoutForm()
-    else:    
-        workout_choice = request.POST['workout_display']
-        number_reps = request.POST['number_reps']
+    else:
+        private = request.POST.get("private", False)=="on"
 
         Workout.objects.create(
-            title=workout_choice,
+            title=request.POST["title"],
+            description=request.POST["workout"],
             pub_date=datetime.now(),
-            private=False,
+            private=private,
             post_type="workout",
+            calories=0,
             calories_positive=False,
             user=request.user,
-            reps=number_reps
+            reps=request.POST["reps"],
         )
     
         form = WorkoutForm(request.POST)
     
     return render(request, "create/workoutTracker.html", {
         "form":form,
-        "workouts":dumps(workouts)
     })
