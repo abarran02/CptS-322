@@ -59,6 +59,6 @@ class WorkoutData:
         with open(json_path, 'r') as workout_file:
             self.all_data = loads(workout_file.read())
         
-        self.workout_name = []
+        self.workout_list = []
         for entry in self.all_data:
-            self.workout_name.append(entry)
+            self.workout_list.append(entry)

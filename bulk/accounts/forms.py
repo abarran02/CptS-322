@@ -1,7 +1,5 @@
 from django import forms
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.forms import ModelForm
-from posts.models import Food, Workout
 
 
 class SettingsForm(forms.Form):
