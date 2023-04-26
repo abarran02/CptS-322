@@ -26,15 +26,24 @@ class Meal(Post):
             # create new object and add in one step
             new_food = self.food_items.create()
             new_food.data_from_food(restaurant, food)
+            self.food_items.add(new_food)
+
+        self.calories = self.sum_calories()
+        self.save()
 
     def add_drink(self, drink: str):
         """Add Food object to `food_items` by matching drink title"""
         try:
             drink_match = Food.objects.get(title__iexact=drink)
             self.food_items.add(drink_match)
+            
         except ObjectDoesNotExist:
             new_drink = self.food_items.create()
             new_drink.data_from_drink(drink)
+            self.food_items.add(new_drink)
+
+        self.calories = self.sum_calories()
+        self.save()
 
     def sum_calories(self) -> int:
         """Returns the sum of calories from all Food objects in Meal"""

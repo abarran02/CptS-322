@@ -7,6 +7,7 @@ from posts.models import Food, Workout
 class GPXForm(forms.Form):
     title = forms.CharField(max_length=64)
     file = forms.FileField()
+    private = forms.BooleanField(required=False)
 
 class FoodForm(ModelForm):
     class Meta:

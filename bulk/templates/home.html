@@ -16,14 +16,14 @@
   {% if latest_posts %}
     <ul>
       {% for post in latest_posts %}
-        <li>
-          <a href="{% url 'detail' post.id %}">{{ post.title }} by {{ post.user.username }}</a>
-        </li>
+        {% if not post.private or post.user.id == user.id %}
+          <li>
+            <a href="{% url 'detail' post.id %}">{{ post.title }} by {{ post.user.username }}</a>
+          </li>
+        {% endif %}
       {% endfor %}
     </ul>
   {% else %}
     <p>No posts are available.</p>
   {% endif %}
-
-  <a href="{% url 'upload' %}">Upload</a>
 {% endblock %}
