@@ -23,6 +23,7 @@ def home(request: HttpRequest):
             ("settings", "Settings"),
             ("add_meal", "Add Meal"),
             ("workout_tracker", "Workout Tracker"),
+            ("upload", "Upload Run"),
             ("logout", "Logout")
         ]
         # get list of users that logged in user is following
@@ -40,47 +41,57 @@ def user_index(request: HttpRequest):
     all_users = User.objects.all()
     return render(request, "user_index.html", {"all_users": all_users})
 
+def calories_today(user: User) -> int:
+    profile_posts = Post.objects.filter(user=user).order_by('-pub_date')
+    calories = 0
+    for post in profile_posts:
+        # only add calories burned today
+        # break if subsequent posts are in the past
+        if post.pub_date.date() == datetime.today().date():
+            # only add calories burned, not consumed
+            if not post.calories_positive:
+                calories += post.calories
+        else:
+            break
+
+    return calories
+
 @login_required
 def profile(request: HttpRequest, user_id):
     # get target user profile
-    target_profile = get_object_or_404(User, pk=user_id)
+    target_profile_user = get_object_or_404(User, pk=user_id)
+    target_profile_data = UserData.objects.get(user=target_profile_user)
     
     following = False
-    user_requests_self = target_profile.id == request.user.id
+    user_requests_self = target_profile_user.id == request.user.id
     requesting_user_data = UserData.objects.get(user=request.user)
     # user is requesting another user's profile
     if not user_requests_self:
         # requesting user follows or unfollows the target profile
-        if 'follow' in request.POST:
-            requesting_user_data.following.add(target_profile)
-        elif 'unfollow' in request.POST:
-            requesting_user_data.following.remove(target_profile)
+        if "follow" in request.POST:
+            requesting_user_data.following.add(target_profile_user)
+        elif "unfollow" in request.POST:
+            requesting_user_data.following.remove(target_profile_user)
 
         # check whether requesting user is following target profile
-        if not requesting_user_data.following.filter(id=target_profile.id).exists():
+        if not requesting_user_data.following.filter(id=target_profile_user.id).exists():
             following = True
         else:
             following = False
-    
-    profile_posts = Run.objects.filter(user=target_profile).order_by('-pub_date')
+
+    profile_posts = Post.objects.filter(user=target_profile_user).order_by('-pub_date')
 
     return render(request, "details/profile.html", {
-        "target_profile": target_profile,
+        "target_profile_user": target_profile_user,
+        "target_profile_data": target_profile_data,
+        "calories_burned_today": calories_today(target_profile_user),
         "following": following,
         "user_requests_self": user_requests_self,
         "requesting_user_data": requesting_user_data,
         "profile_posts": profile_posts
     })
 
-@login_required
-def post_detail(request: HttpRequest, post_id):
-    # attempt to get requested post
-    post_obj = get_object_or_404(Post, pk=post_id)
-    # check that user has permission to view
-    if post_obj.private and not post_obj.user.id == request.user.id:
-        # otherwise return user to homepage
-        return HttpResponseRedirect(reverse("home"))
-    
+def render_detail(request: HttpRequest, post_id: int, post_obj: Post, user_requests_self: bool):
     user_data = UserData.objects.get(user=request.user)
 
     # determine post type and corresponding template to return
@@ -89,6 +100,7 @@ def post_detail(request: HttpRequest, post_id):
         post = Meal.objects.get(pk=post_id)
         return render(request, "details/meal_detail.html", {
             "post": post,
+            "user_requests_self": user_requests_self,
         })
     
     elif post_obj.post_type == "run":
@@ -99,6 +111,7 @@ def post_detail(request: HttpRequest, post_id):
             "post": post,
             "metric": user_data.metric,
             "run_map": post.gpx_map,
+            "user_requests_self": user_requests_self,
         })
     
     elif post_obj.post_type == "workout":
@@ -106,10 +119,28 @@ def post_detail(request: HttpRequest, post_id):
         post = Workout.objects.get(pk=post_id)
         return render(request, "details/workout_detail.html", {
             "post": post,
+            "user_requests_self": user_requests_self,
         })
     
     else:
         raise Http404("Post not found.")
+
+@login_required
+def post_detail(request: HttpRequest, post_id: int):
+    # attempt to get requested post
+    post_obj = get_object_or_404(Post, pk=post_id)
+    # check that user has permission to view
+    user_requests_self = post_obj.user == request.user
+    if post_obj.private and not user_requests_self:
+        # otherwise return user to homepage
+        return HttpResponseRedirect(reverse("home"))
+    
+    # user deletes their own post
+    if user_requests_self and "delete" in request.POST:
+        post_obj.delete()
+        return HttpResponseRedirect(reverse("home"))
+   
+    return render_detail(request, post_id, post_obj, user_requests_self)
 
 @login_required
 def gpx_form_upload(request: HttpRequest):
@@ -118,10 +149,12 @@ def gpx_form_upload(request: HttpRequest):
     else:
         form = GPXForm(request.POST, request.FILES)
         if form.is_valid():
+            private = request.POST.get("private", False)=="on"
+            
             new_run = Run.objects.create(
                 title=request.POST["title"],
                 pub_date=datetime.now(),
-                private=request.POST["private"]=="on",
+                private=private,
                 user=request.user,
                 gpx_upload=request.FILES["file"],
                 calories_positive=False,

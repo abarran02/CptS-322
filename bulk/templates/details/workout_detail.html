@@ -12,5 +12,11 @@
     <p>{{ post.calories|floatformat:0 }}</p>
   {% endif %}
 
+  {% if user_requests_self %}
+    <form action="" method="POST">
+      {% csrf_token %}
+      <button type="submit" name="delete">Delete</button>
+    </form>
+  {% endif %}
   <a href="{% url 'profile' post.user.id %}">Return to profile</a>
 {% endblock %}

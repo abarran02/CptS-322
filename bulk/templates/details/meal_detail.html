@@ -8,5 +8,11 @@
   <p>{{ post.title }} from {{ post.description }}</p>
   <p>{{ post.calories }} calories</p>
 
+  {% if user_requests_self %}
+    <form action="" method="POST">
+      {% csrf_token %}
+      <button type="submit" name="delete">Delete</button>
+    </form>
+  {% endif %}
   <a href="{% url 'profile' post.user.id %}">Return to profile</a>
 {% endblock %}
