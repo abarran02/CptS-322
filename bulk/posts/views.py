@@ -2,15 +2,16 @@ from datetime import datetime
 from json import dumps
 
 from accounts.models import UserData
-from CalorieData import FoodData, WorkoutData
+from CalorieData import FoodData, WorkoutData, DrinkData
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import Http404, HttpRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from posts.models import Meal, Post, Run, Workout
+from posts.models.workout import SwimWorkout
 
-from .forms import FoodForm, GPXForm, WorkoutForm
+from .forms import FoodForm, GPXForm, WorkoutForm, SwimWorkoutForm
 
 
 def home(request: HttpRequest):
@@ -23,7 +24,8 @@ def home(request: HttpRequest):
             ("settings", "Settings"),
             ("add_meal", "Add Meal"),
             ("workout_tracker", "Workout Tracker"),
-            ("logout", "Logout")
+            ("logout", "Logout"),
+            ("add_swimWorkout", "Swim Tracker")
         ]
         # get list of users that logged in user is following
         user_data = UserData.objects.get(user=request.user)
@@ -179,4 +181,23 @@ def workout_tracker(request):
     return render(request, "create/workoutTracker.html", {
         "form":form,
         "workouts":dumps(workouts)
+    })
+
+@login_required
+def swim_workout(request):
+    if not request.method == "POST":
+        form = SwimWorkoutForm()
+    else:
+        stroke_type = request.POST['dropdown_swim']
+        swim_dur = request.POST['duration']
+
+        newswim = SwimWorkout.objects.create(
+            time = swim_dur,
+            stroke = stroke_type
+        )
+        form = SwimWorkoutForm(request.POST)
+        return HttpResponseRedirect(reverse("detail", args=[newswim.id]))
+
+    return render(request, "create/add_swimWorkout.html", {
+        "form":form
     })

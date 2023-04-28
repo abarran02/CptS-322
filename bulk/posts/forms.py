@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 from posts.models import Food, Workout
+from posts.models.workout import SwimWorkout
 
 
 # https://simpleisbetterthancomplex.com/tutorial/2016/08/01/how-to-upload-files-with-django.html
@@ -17,3 +18,8 @@ class WorkoutForm(ModelForm):
     class Meta:
         model = Workout
         fields = ('description', 'reps')
+
+class SwimWorkoutForm(ModelForm):
+    class Meta:
+        model = SwimWorkout
+        fields = ('time','stroke')
