@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Add Swim Workout{% endblock %}
+
+
+{% block content %}
+<div class="container">
+    <form method="POST" action="">
+        {% csrf_token %}
+        <h3>Add Your Swim Workout</h3>
+        <div class="dropdown_swim">
+            <label>Pick a Stroke</label>
+            <select name="dropdown_swim" id="dropdown_swim">
+                <option value="Freestyle">Freestyle</option>
+                <option value="Backstroke">Backstroke</option>
+                <option value="BreastStroke">BreastStroke</option>
+                <option value="Butterfly">Butterfly</option>
+            </select>
+            
+            <div class="duration">
+                <label>Duration</label>
+                <input  id="duration" name="duration">
+                </input> 
+            </div>
+
+            <button type="submit" id="submit_swim">Submit</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
