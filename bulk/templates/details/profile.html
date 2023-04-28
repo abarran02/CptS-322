@@ -8,10 +8,10 @@
     <li>{{ target_profile_user.username }}</li>
     <li>{{ target_profile_user.first_name }} {{ target_profile_user.last_name }}</li>
     <li>{{ target_profile_data.location }}</li>
-    <li>{{ target_profile_data.following.all.count }} following</li>
-    <li>{{ target_profile_user.following.all.count }} followers</li>
-    <li>Daily {{ target_profile_data.daily_calories_goal }} calories goal</li>
-    <li>{{ calories_burned_today }} calories burned today</li>
+    <li>{{ target_profile_data.following.all.count }} Following</li>
+    <li>{{ target_profile_user.following.all.count }} Followers</li>
+    <li>Daily Calorie Goal: {{ target_profile_data.daily_calories_goal }} </li>
+    <li>{{ calories_burned_today }} Calories Burned Today</li>
   </ul>
   
   {% if not user_requests_self %}
