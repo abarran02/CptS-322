@@ -127,6 +127,8 @@ def gpx_form_upload(request: HttpRequest):
 @login_required
 def add_meal(request):
     resturants = FoodData().calorie_lookup
+    drinks = DrinkData().calorie_lookup # gets only the drink name and claories
+    
     if not request.method == "POST":
         form = FoodForm()
     else:
@@ -149,7 +151,8 @@ def add_meal(request):
 
     return render(request, "create/add_meal.html", {
         "form": form, 
-        "restName": dumps(resturants)
+        "restName": dumps(resturants),
+        "drinksName":dumps(drinks)
     })
 
 @login_required

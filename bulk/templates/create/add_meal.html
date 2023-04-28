@@ -5,7 +5,6 @@
 {% block content %}
   <div class="Container">
     <h3>Add Meal</h3> 
-    <h1>TEST</h1>
     <form method="POST" action="">
       {% csrf_token %}
       <div class="resturant_dropdown">
@@ -15,9 +14,15 @@
       </div>
       <div class="food_dropdown">
         <label>Pick a Food</label>
-        <select name="display_foods" id="display_foods"></select>
+        <select name="display_foods" id="display_foods" onchange="display_drinks_data();display('display_foods')"></select>
       </div>
-      <button type="submit" name="food_choice" onchange="display('display_foods')">Submit</button>
+      <div class="drinks_dropdown">
+        <label>Pick a Drink</label>
+        <select name="display_drinks" id="display_drinks">
+        </select>
+        <p id="test"></p>
+      </div>
+      <button type="submit" name="food_choice">Submit</button>
     </form>
   </div>
 
@@ -31,7 +36,7 @@
     const obj_food = JSON.parse(resturant);
 
     if (resturant.length == 0){ // show no option if at the end of list
-      document.getElementById("resturant_name").innerHTML = "<option></option>" // sets the select option to null value
+      document.getElementById("display_resturants").innerHTML = "<option></option>" // sets the select option to null value
     }
     else{
       var names = "";
@@ -66,7 +71,36 @@
         }
       }
 
-      document.getElementById("display_foods").innerHTML = names; //Sets the Id for select to that name   
+      document.getElementById("display_foods").innerHTML = names; //Sets the Id for select to that name  
+    
     }
+    
   </script>
+
+  <script data-drinks_name="{{drinksName}}">
+    const dk_data = document.currentScript.dataset;
+    const dk = dk_data.drinks_name;
+    const obj_drink = JSON.parse(dk);
+
+    let drinkDict = obj_drink[current_resturant];
+    let keyValues = Object.keys(drinkDict);
+
+    function display_drinks_data(){
+
+      if(dk.length == 0){
+        document.getElementById("display_drinks").innerHTML = "<option></option>";
+      }
+      else{
+        var tempNames = "";
+        for(dk_name in obj_drink){
+          tempNames += "<option>" + dk_name + "</option>";
+        }
+      }
+      document.getElementById("display_drinks").innerHTML = tempNames;
+
+   }
+
+
+  </script>
+
 {% endblock %}
