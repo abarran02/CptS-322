@@ -62,3 +62,10 @@ class WorkoutData:
         self.workout_list = []
         for entry in self.all_data:
             self.workout_list.append(entry)
+            
+        self.swim_list = [
+            "Freestyle",
+            "Backstroke",
+            "BreastStroke",
+            "Butterfly"
+        ]
