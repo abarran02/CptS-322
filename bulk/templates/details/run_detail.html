@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}{{ post.title }}{% endblock %}
+{% block title %}{{ post.title }}{% endblock %}
 
 
 {% block content %}
@@ -15,6 +16,7 @@
 
   <p>{{ post.calories|floatformat:0 }} calories</p>
 
+  {{ run_map|safe }}
   {{ run_map|safe }}
 
   {% if user_requests_self %}
