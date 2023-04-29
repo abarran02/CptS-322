@@ -11,7 +11,8 @@ urlpatterns = [
     path('addmeal/', views.add_meal, name='add_meal'),
     path('workout_tracker', views.workout_tracker, name='workout_tracker'),
     path('users/', views.user_index, name='user_index'),
-    path('users/<int:user_id>/', views.profile, name='profile')
+    path('users/<int:user_id>/', views.profile, name='profile'),
+    path('add_swimWorkout/', views.swim_workout, name='add_swimWorkout')
 ]
 
 if settings.DEBUG:

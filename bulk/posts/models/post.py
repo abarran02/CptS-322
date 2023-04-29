@@ -24,7 +24,8 @@ class Post(models.Model):
     POST_TYPE_CHOICES = (
         ("meal", "Meal"),
         ("run", "Run"),
-        ("workout", "Workout")
+        ("workout", "Workout"),
+        ("swim", "Swim")
     )
     post_type = models.CharField(max_length=8, choices=POST_TYPE_CHOICES)
 

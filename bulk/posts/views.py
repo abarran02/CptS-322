@@ -2,15 +2,16 @@ from datetime import datetime
 from json import dumps
 
 from accounts.models import UserData
-from CalorieData import FoodData, WorkoutData
+from CalorieData import FoodData
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import Http404, HttpRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
-from posts.models import Meal, Post, Run, Workout
+from django.utils.dateparse import parse_duration
+from posts.models import Meal, Post, Run, Swim, Workout
 
-from .forms import FoodForm, GPXForm, WorkoutForm
+from .forms import FoodForm, GPXForm, SwimWorkoutForm, WorkoutForm
 
 
 def home(request: HttpRequest):
@@ -23,6 +24,7 @@ def home(request: HttpRequest):
             ("settings", "Settings"),
             ("add_meal", "Add Meal"),
             ("workout_tracker", "Workout Tracker"),
+            ("add_swimWorkout", "Add Swim"),
             ("upload", "Upload Run"),
             ("logout", "Logout")
         ]
@@ -121,6 +123,14 @@ def render_detail(request: HttpRequest, post_id: int, post_obj: Post, user_reque
             "post": post,
             "user_requests_self": user_requests_self,
         })
+        
+    elif post_obj.post_type == "swim":
+        # get post_obj as a Swim object
+        post = Swim.objects.get(pk=post_id)
+        return render(request, "details/swim_detail.html", {
+            "post": post,
+            "user_requests_self": user_requests_self,
+        })
     
     else:
         raise Http404("Post not found.")
@@ -202,22 +212,53 @@ def workout_tracker(request):
     if not request.method == "POST":
         form = WorkoutForm()
     else:
-        private = request.POST.get("private", False)=="on"
-
-        Workout.objects.create(
-            title=request.POST["title"],
-            description=request.POST["workout"],
-            pub_date=datetime.now(),
-            private=private,
-            post_type="workout",
-            calories=0,
-            calories_positive=False,
-            user=request.user,
-            reps=request.POST["reps"],
-        )
-    
         form = WorkoutForm(request.POST)
-    
+        if form.is_valid():
+            time = parse_duration(request.POST["time"])
+            private = request.POST.get("private", False)=="on"
+
+            new_workout = Workout.objects.create(
+                title=request.POST["title"],
+                description=request.POST["workout"],
+                time=time,
+                pub_date=datetime.now(),
+                private=private,
+                post_type="workout",
+                calories_positive=False,
+                user=request.user,
+                reps=request.POST["reps"],
+            )
+            
+            new_workout.update_calories()
+            return HttpResponseRedirect(reverse("detail", args=[new_workout.id]))
+
     return render(request, "create/workoutTracker.html", {
         "form":form,
+    })
+
+@login_required
+def swim_workout(request):
+    if not request.method == "POST":
+        form = SwimWorkoutForm()
+    else:
+        form = SwimWorkoutForm(request.POST)
+        if form.is_valid():
+            time = parse_duration(request.POST["time"])
+            private = request.POST.get("private", False)=="on"
+            new_swim = Swim.objects.create(
+                title=request.POST["stroke"],
+                time=time,
+                pub_date=datetime.now(),
+                private=private,
+                post_type="swim",
+                calories_positive=False,
+                user=request.user,
+            )
+            
+            new_swim.update_calories()
+            
+            return HttpResponseRedirect(reverse("detail", args=[new_swim.id]))
+
+    return render(request, "create/add_swimWorkout.html", {
+        "form":form
     })
