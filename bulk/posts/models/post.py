@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.conf import settings
 from django.db import models
 
@@ -33,3 +35,11 @@ class Post(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
+
+def calculate_calories_burned(MET: int, duration: timedelta, weight: int, metric: bool = True) -> float:
+    """Calculate activity calories burned using the equation = MET * weight (kg) * time (hrs)"""
+    # https://marathonhandbook.com/how-many-calories-burned-running-calculator/#met-formula
+    if not metric:
+        # convert kilograms to pounds
+        weight /= 2.205
+    return MET * weight * (duration.seconds / 3600)

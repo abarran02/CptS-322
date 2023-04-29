@@ -1,14 +1,15 @@
 from django.db import models
 
-from .post import Post
+from .post import Post, calculate_calories_burned
 
 
 class Workout(Post):
-    # Should we add a third field for description of exercise and swim stroke
-    #exercise = models.CharField(max_length=100)
     reps = models.IntegerField()
     time = models.DurationField(null=True, blank=True)
 
+    def update_calories(self, weight: int, metric: bool = True):
+        duration = self.time
+        self.calories = calculate_calories_burned(5, duration, weight, metric)
+
 class SwimWorkout(Post):
     time = models.DurationField(null=True, blank=True)
-    stroke = models.CharField(max_length=100)

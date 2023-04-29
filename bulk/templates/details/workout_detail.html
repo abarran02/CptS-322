@@ -5,17 +5,12 @@
 {% block content %}
   <p>{{ post.title }} by {{ post.user.username }}</p>
   <p>{{ post.pub_date|date:"m/d/Y" }} at {{ post.pub_date|date:"H:i:s" }}</p>
-  <p>{{ post.time }}</p>
+  <p>{{ post.reps }}x {{ post.description }}</p>
 
-  {% if metric %}
-    <p>{{ post.distance|floatformat:2 }} km at {{ post.pace }}</p>
-  {% else %}
-    <p>{{ post.distance|floatformat:2 }} mi at {{ post.pace }}</p>
+  {% if post.time %}
+    <p>{{ post.time }}</p>
+    <p>{{ post.calories|floatformat:0 }}</p>
   {% endif %}
-
-  <p>{{ post.calories|floatformat:0 }} calories</p>
-
-  {{ run_map|safe }}
 
   {% if user_requests_self %}
     <form action="" method="POST">

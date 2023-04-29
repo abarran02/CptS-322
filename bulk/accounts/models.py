@@ -14,7 +14,7 @@ class UserData(models.Model):
     weight = models.IntegerField()
     metric = models.BooleanField()
 
-    daily_calories_goal = models.IntegerField(null=True, blank=True)
+    daily_calories_goal = models.IntegerField()
     
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
