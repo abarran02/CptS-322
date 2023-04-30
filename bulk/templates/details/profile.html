@@ -15,22 +15,19 @@
   </ul>
   
   {% if not user_requests_self %}
-    {% if following %}
       <form action="" method="POST">
-        {% csrf_token %} 
-        <button type="submit" name="follow">Follow</button>
-      </form>
-    {% else %}
-      <form action="" method="POST">
-        {% csrf_token %} 
-        <button type="submit" name="unfollow">Unfollow</button>
-      </form>
-    {% endif %}
+        {% csrf_token %}
+        {% if following %}
+          <button type="submit" class="button small" name="unfollow">Unfollow</button>
+        {% else %}
+          <button type="submit" class="button small" name="follow">Follow</button>
+        {% endif %}
+      </form>    
   {% endif %}
 
   Recent posts:
-  {% if profile_posts %}
-    <ul>
+  <ul>
+    {% if profile_posts %}
       {% for post in profile_posts %}
         {% if not post.private or user_requests_self %}
           <li>
@@ -38,11 +35,9 @@
           </li>
         {% endif %}
       {% endfor %}
-    </ul>
-  {% else %}
-  <ul>
-    <li>No activities available</li>
+    {% else %}
+      <li>No activities available</li>
+    {% endif %}
   </ul>
-  {% endif %}
 
 {% endblock %}

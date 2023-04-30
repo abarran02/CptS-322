@@ -78,7 +78,7 @@ def profile(request: HttpRequest, user_id):
             requesting_user_data.following.remove(target_profile_user)
 
         # check whether requesting user is following target profile
-        if not requesting_user_data.following.filter(id=target_profile_user.id).exists():
+        if requesting_user_data.following.filter(id=target_profile_user.id).exists():
             following = True
         else:
             following = False
@@ -105,8 +105,14 @@ def render_detail(request: HttpRequest, post_id: int, post_obj: Post, user_reque
     elif post_obj.post_type == "run":
         # get post_obj as a Run object
         post = Run.objects.get(pk=post_id)
+        user_data = UserData.objects.get(user=request.user)
         # update run stats and get plotly mapbox html
-        template = "details/run_detail.html"
+        return render_with_navbar(request, "details/run_detail.html", {
+            "post": post,
+            "metric": user_data.metric,
+            "run_map": post.gpx_map,
+            "user_requests_self": user_requests_self,
+        })
     
     elif post_obj.post_type == "workout":
         # get post_obj as a Workout object

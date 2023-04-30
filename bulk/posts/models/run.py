@@ -132,7 +132,7 @@ def haversine(lon1: float, lat1: float, lon2: float, lat2: float) -> float:
     return c * r
 
 # from https://stackoverflow.com/questions/63787612/plotly-automatic-zooming-for-mapbox-maps
-def zoom_center(lons: tuple, lats: tuple, width_to_height: float=2.0) -> tuple:
+def zoom_center(lons: tuple, lats: tuple, width_to_height: float=1.0) -> tuple:
     """Finds optimal zoom and centering for a plotly mapbox.
     
     Args:
