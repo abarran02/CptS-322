@@ -8,20 +8,18 @@
     <form method="POST" action="">
       {% csrf_token %}
       <div class="resturant_dropdown">
-        <label for="">Pick a Resturant</label>
-        <select name="display_resturants" id="display_resturants" onchange="populate('display_resturants', 'display_foods')">
-        </select>
+        <label>Restaurant</label>
+        <select name="display_resturants" id="display_resturants" onchange="display_drinks_data();populate('display_resturants', 'display_foods')"></select>
       </div>
       <div class="food_dropdown">
-        <label>Pick a Food</label>
-        <select name="display_foods" id="display_foods" onchange="display_drinks_data();display('display_foods')"></select>
+        <label>Food</label>
+        <select name="display_foods" id="display_foods"></select>
       </div>
       <div class="drinks_dropdown">
-        <label>Pick a Drink</label>
-        <select name="display_drinks" id="display_drinks">
-        </select>
-        <p id="test"></p>
+        <label>Drink</label>
+        <select name="display_drinks" id="display_drinks"></select>
       </div>
+      
       <button type="submit" name="food_choice">Submit</button>
     </form>
   </div>
@@ -39,7 +37,7 @@
       document.getElementById("display_resturants").innerHTML = "<option></option>" // sets the select option to null value
     }
     else{
-      var names = "";
+      var names = "<option value=''>-----</option>";
       for(rest_names in obj_rest){ // loops though and changes the names string to each value in obj i.e Chiptole to KFC
         names += "<option value='"+ rest_names +"'>" + rest_names + "</option>";
       }
@@ -70,9 +68,7 @@
           }
         }
       }
-
       document.getElementById("display_foods").innerHTML = names; //Sets the Id for select to that name  
-    
     }
     
   </script>
@@ -82,11 +78,7 @@
     const dk = dk_data.drinks_name;
     const obj_drink = JSON.parse(dk);
 
-    let drinkDict = obj_drink[current_resturant];
-    let keyValues = Object.keys(drinkDict);
-
     function display_drinks_data(){
-
       if(dk.length == 0){
         document.getElementById("display_drinks").innerHTML = "<option></option>";
       }
@@ -97,10 +89,7 @@
         }
       }
       document.getElementById("display_drinks").innerHTML = tempNames;
-
    }
-
-
   </script>
 
 {% endblock %}

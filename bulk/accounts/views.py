@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.views import generic
+from posts.views import render_with_navbar
 
 from .forms import SettingsForm
 from .models import UserData
@@ -29,7 +30,9 @@ def settings(request):
     else:
         form = init_form(request.user)
 
-    return render(request, "registration/settings.html", {"form": form})
+    return render_with_navbar(request, "registration/settings.html", {
+        "form": form
+    })
 
 @login_required
 def login_redirect(request):

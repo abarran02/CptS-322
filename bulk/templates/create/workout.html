@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
-{% block title %}Workout Tracker{% endblock %}
+{% block title %}Add Workout{% endblock %}
 
 
 {% block content %}
+  <h3>Add Meal</h3>
   <form method="post" action="">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Submit</button>
   </form>
-  <p><a href="{% url 'home' %}">Return to home</a></p>
 {% endblock %}
