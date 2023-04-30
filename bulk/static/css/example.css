@@ -1,18 +1,84 @@
 body {
-    background-color: lightblue;
-    font-family: verdana;
+  background-color: lightblue;
+  font-family: verdana;
 }
 
 .welcome-message {
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 11px;
 }
 
 .navbar {
   background-color: #333;
   overflow: hidden;
-  display: flex;
-  justify-content: center;
+}
+
+.navbar a {
+  float: left;
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+.navbar a.active {
+  background-color: #4CAF50;
+}
+
+.dropdown {
+  float: left;
+  overflow: hidden;
+}
+
+.dropdown .dropbtn {
+  font-size: 16px;
+  border: none;
+  outline: none;
+  color: white;
+  padding: 14px 16px;
+  background-color: inherit;
+  margin: 0;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  width: 200px;
+  z-index: 1;
+}
+
+.dropdown-content a {
+  float: none;
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+.dropdown-content a:hover {
+  background-color: grey;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown-content .dropdown-link {
+  float: none;
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+.dropdown-container {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
 }
 
 .navbar ul {
@@ -29,7 +95,6 @@ body {
   display: block;
   color: white;
   text-align: center;
-  padding: 14px 16px;
   text-decoration: none;
 }
 
@@ -38,10 +103,11 @@ body {
   color: black;
 }
 
-.active {
-  background-color: #4CAF50;
+.navbar li .dropdown:hover .dropbtn {
+  background-color: #ddd;
+  color: black;
 }
 
-nav {
-  width: 100%;
+.navbar li .dropdown-container:hover .dropdown-content {
+  display: block;
 }

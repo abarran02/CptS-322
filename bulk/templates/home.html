@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+
 {% block title %}Home{% endblock %}
 
 {% block content %}
@@ -8,11 +9,18 @@
 
   <nav class="navbar">
     <ul>
-      {% for view, label in links %}
-        <li>
-          <a href="{% url view %}">{{ label }}</a>
-        </li>
-      {% endfor %}
+      <li><a href="{% url 'user_index' %}">Users</a></li>
+      <li><a href="{% url 'settings' %}">Settings</a></li>
+      <li class="dropdown">
+        <a href="#" class="dropbtn">Actions</a>
+        <div class="dropdown-content">
+          <a href="{% url 'add_meal' %}">Add Meal</a>
+          <a href="{% url 'workout_tracker' %}">Workout Tracker</a>
+          <a href="{% url 'add_swimWorkout' %}">Add Swim</a>
+          <a href="{% url 'upload' %}">Upload Run</a>
+        </div>
+      </li>
+      <li><a href="{% url 'logout' %}">Logout</a></li>
     </ul>
   </nav>
 
