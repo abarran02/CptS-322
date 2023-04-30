@@ -15,11 +15,6 @@ class GPXForm(forms.Form):
     file = forms.FileField()
     private = forms.BooleanField(required=False)
 
-class FoodForm(ModelForm):
-    class Meta:
-        model = Food
-        fields = ('title','description','calories')
-
 class WorkoutForm(forms.Form):
     title = forms.CharField(max_length=64)
     workout = forms.CharField(widget=forms.Select(choices=workout_choices))

@@ -1,20 +1,11 @@
 {% extends 'base.html' %}
+
 {% block title %}Home{% endblock %}
 
 {% block content %}
   <div class="welcome-message">
     Hi {{ user.username }}! Welcome to Bulk.
   </div>
-
-  <nav class="navbar">
-    <ul>
-      {% for view, label in links %}
-        <li>
-          <a href="{% url view %}">{{ label }}</a>
-        </li>
-      {% endfor %}
-    </ul>
-  </nav>
 
   Recent posts:
   {% if latest_posts %}

@@ -11,6 +11,7 @@ class Workout(Post):
     def update_calories(self):
         user_data = UserData.objects.get(user=self.user)
         self.calories = calculate_calories_burned(5, self.time, user_data.weight, user_data.metric)
+        self.save()
 
 class Swim(Post):
     time = models.DurationField()
@@ -18,3 +19,4 @@ class Swim(Post):
     def update_calories(self):
         user_data = UserData.objects.get(user=self.user)
         self.calories = calculate_calories_burned(7, self.time, user_data.weight, user_data.metric)
+        self.save()

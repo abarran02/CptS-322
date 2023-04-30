@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Add Swim{% endblock %}
+
+
+{% block content %}
+  <h3>Add Swim</h3>
+  <form method="POST" action="">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="submit success button">Save</button>
+  </form>
+{% endblock %}

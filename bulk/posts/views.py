@@ -2,46 +2,48 @@ from datetime import datetime
 from json import dumps
 
 from accounts.models import UserData
-from CalorieData import FoodData
+from CalorieData import DrinkData, FoodData
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import Http404, HttpRequest, HttpResponseRedirect
+from django.http import (Http404, HttpRequest, HttpResponse,
+                         HttpResponseRedirect)
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.dateparse import parse_duration
 from posts.models import Meal, Post, Run, Swim, Workout
 
-from .forms import FoodForm, GPXForm, SwimWorkoutForm, WorkoutForm
+from .forms import GPXForm, SwimWorkoutForm, WorkoutForm
 
+
+def render_with_navbar(request: HttpRequest, template: str, context) -> HttpResponse:
+    context["links"] = [
+        ("create_meal", "Meal"),
+        ("create_workout", "Workout"),
+        ("create_swim", "Swim"),
+        ("create_run", "Run"),
+    ]
+    
+    return render(request, template, context)
 
 def home(request: HttpRequest):
     if not request.user.is_authenticated:
         return render(request, "home_guest.html")
     else:
         # list of tuples with format (view, label)
-        links = [
-            ("user_index", "Users"),
-            ("settings", "Settings"),
-            ("add_meal", "Add Meal"),
-            ("workout_tracker", "Workout Tracker"),
-            ("add_swimWorkout", "Add Swim"),
-            ("upload", "Upload Run"),
-            ("logout", "Logout")
-        ]
+
         # get list of users that logged in user is following
         user_data = UserData.objects.get(user=request.user)
         following = user_data.following.all()
         # get latest posts by following users
         latest_posts = Post.objects.filter(user__in=following).order_by('-pub_date')
-        return render(request, "home.html", {
+        return render_with_navbar(request, "home.html", {
             "latest_posts": latest_posts,
-            "links": links
         })
 
 @login_required
 def user_index(request: HttpRequest):
     all_users = User.objects.all()
-    return render(request, "user_index.html", {"all_users": all_users})
+    return render_with_navbar(request, "user_index.html", {"all_users": all_users})
 
 def calories_today(user: User) -> int:
     profile_posts = Post.objects.filter(user=user).order_by('-pub_date')
@@ -62,7 +64,7 @@ def calories_today(user: User) -> int:
 def profile(request: HttpRequest, user_id):
     # get target user profile
     target_profile_user = get_object_or_404(User, pk=user_id)
-    target_profile_data = UserData.objects.get(user=target_profile_user)
+    target_profile_data = get_object_or_404(UserData, user=target_profile_user)
     
     following = False
     user_requests_self = target_profile_user.id == request.user.id
@@ -83,7 +85,7 @@ def profile(request: HttpRequest, user_id):
 
     profile_posts = Post.objects.filter(user=target_profile_user).order_by('-pub_date')
 
-    return render(request, "details/profile.html", {
+    return render_with_navbar(request, "details/profile.html", {
         "target_profile_user": target_profile_user,
         "target_profile_data": target_profile_data,
         "calories_burned_today": calories_today(target_profile_user),
@@ -94,46 +96,35 @@ def profile(request: HttpRequest, user_id):
     })
 
 def render_detail(request: HttpRequest, post_id: int, post_obj: Post, user_requests_self: bool):
-    user_data = UserData.objects.get(user=request.user)
-
     # determine post type and corresponding template to return
     if post_obj.post_type == "meal":
         # get post_obj as a Meal object
         post = Meal.objects.get(pk=post_id)
-        return render(request, "details/meal_detail.html", {
-            "post": post,
-            "user_requests_self": user_requests_self,
-        })
+        template = "details/meal_detail.html"
     
     elif post_obj.post_type == "run":
         # get post_obj as a Run object
         post = Run.objects.get(pk=post_id)
         # update run stats and get plotly mapbox html
-        return render(request, "details/run_detail.html", {
-            "post": post,
-            "metric": user_data.metric,
-            "run_map": post.gpx_map,
-            "user_requests_self": user_requests_self,
-        })
+        template = "details/run_detail.html"
     
     elif post_obj.post_type == "workout":
         # get post_obj as a Workout object
         post = Workout.objects.get(pk=post_id)
-        return render(request, "details/workout_detail.html", {
-            "post": post,
-            "user_requests_self": user_requests_self,
-        })
+        template = "details/workout_detail.html"
         
     elif post_obj.post_type == "swim":
         # get post_obj as a Swim object
         post = Swim.objects.get(pk=post_id)
-        return render(request, "details/swim_detail.html", {
-            "post": post,
-            "user_requests_self": user_requests_self,
-        })
-    
+        template = "details/swim_detail.html"
+
     else:
         raise Http404("Post not found.")
+    
+    return render_with_navbar(request, template, {
+        "post": post,
+        "user_requests_self": user_requests_self,
+    })
 
 @login_required
 def post_detail(request: HttpRequest, post_id: int):
@@ -153,7 +144,7 @@ def post_detail(request: HttpRequest, post_id: int):
     return render_detail(request, post_id, post_obj, user_requests_self)
 
 @login_required
-def gpx_form_upload(request: HttpRequest):
+def create_run(request: HttpRequest):
     if not request.method == "POST":
         form = GPXForm()
     else:
@@ -177,21 +168,27 @@ def gpx_form_upload(request: HttpRequest):
 
             return HttpResponseRedirect(reverse("detail", args=[new_run.id]))
     
-    return render(request, "create/gpx_upload.html", {"form": form})
+    return render_with_navbar(request, "create/run.html", {"form": form})
 
 @login_required
-def add_meal(request):
+def create_meal(request):
     resturants = FoodData().calorie_lookup
-    if not request.method == "POST":
-        form = FoodForm()
-    else:
-        form = FoodForm(request.POST)
-        if form.is_valid:
-            food_name = request.POST['display_foods']
-            restaurant = request.POST['display_resturants']
+    drinks = DrinkData().calorie_lookup
+    if request.method == "POST":
+        # also ensure that all fields were correctly filled
+        # check restaurant first, as other fields will auto-populate once it is selected
+        restaurant = request.POST.get("display_resturants", False)       
+        if restaurant:
+            food_name = request.POST.get("display_foods", False)
+            drink = request.POST.get("display_drinks", False)
+
+            # build title if drink was included
+            title = food_name
+            if drink != "None":
+                title += f" and {drink}"
 
             new_meal = Meal.objects.create(
-                title=food_name,
+                title=title,
                 description=restaurant,
                 pub_date=datetime.now(),
                 private=True,
@@ -200,15 +197,16 @@ def add_meal(request):
                 user=request.user
             )
             new_meal.add_food(restaurant, food_name)
+            new_meal.add_drink(drink)
             return HttpResponseRedirect(reverse("detail", args=[new_meal.id]))
-
-    return render(request, "create/add_meal.html", {
-        "form": form, 
-        "restName": dumps(resturants)
+        
+    return render_with_navbar(request, "create/meal.html", {
+        "restName": dumps(resturants),
+        "drinksName": dumps(drinks)
     })
 
 @login_required
-def workout_tracker(request):
+def create_workout(request):
     if not request.method == "POST":
         form = WorkoutForm()
     else:
@@ -232,12 +230,12 @@ def workout_tracker(request):
             new_workout.update_calories()
             return HttpResponseRedirect(reverse("detail", args=[new_workout.id]))
 
-    return render(request, "create/workoutTracker.html", {
+    return render_with_navbar(request, "create/workout.html", {
         "form":form,
     })
 
 @login_required
-def swim_workout(request):
+def create_swim(request):
     if not request.method == "POST":
         form = SwimWorkoutForm()
     else:
@@ -259,6 +257,6 @@ def swim_workout(request):
             
             return HttpResponseRedirect(reverse("detail", args=[new_swim.id]))
 
-    return render(request, "create/add_swimWorkout.html", {
+    return render_with_navbar(request, "create/swim.html", {
         "form":form
     })
