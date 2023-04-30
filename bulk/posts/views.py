@@ -2,7 +2,7 @@ from datetime import datetime
 from json import dumps
 
 from accounts.models import UserData
-from CalorieData import FoodData, DrinkData
+from CalorieData import DrinkData, FoodData
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import (Http404, HttpRequest, HttpResponse,
@@ -64,7 +64,7 @@ def calories_today(user: User) -> int:
 def profile(request: HttpRequest, user_id):
     # get target user profile
     target_profile_user = get_object_or_404(User, pk=user_id)
-    target_profile_data = UserData.objects.get(user=target_profile_user)
+    target_profile_data = get_object_or_404(UserData, user=target_profile_user)
     
     following = False
     user_requests_self = target_profile_user.id == request.user.id

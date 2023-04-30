@@ -11,7 +11,7 @@
   {% if user_requests_self %}
     <form action="" method="POST">
       {% csrf_token %}
-      <button type="submit" name="delete">Delete</button>
+      <button type="submit" class="alert button" name="delete">Delete</button>
     </form>
   {% endif %}
 {% endblock %}

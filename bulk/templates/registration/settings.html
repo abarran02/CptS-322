@@ -8,7 +8,7 @@
     <form action="{% url 'settings' %}" method="post">
       {% csrf_token %}
       {{ form.as_p }}
-      <input type="submit" value="Submit">
+      <button class="submit success button">Save</button>
     </form>
 
   {% endif %}

@@ -1,11 +1,10 @@
 body {
-  background-color: lightblue;
+  background-color: #e6ffff !important;
   font-family: verdana;
 }
 
 .welcome-message {
-  text-align: center;
-  margin-bottom: 11px;
+  margin-bottom: 16px;
 }
 
 .navbar {
@@ -46,7 +45,7 @@ body {
   display: none;
   position: absolute;
   background-color: #555;
-  width: 200px;
+  width: 150px;
   z-index: 1;
 }
 

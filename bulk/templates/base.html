@@ -1,35 +1,46 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <script src="{% static 'js/example.js' %}"></script> <!-- This is how to include a static file -->
-  <link rel="stylesheet" href="{% static 'css/styles.css' %}" type="text/css">
-  <title>Bulk - {% block title %}{% endblock %}</title>
-  <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
-</head>
-<body>
-  {% if links %}
-    <nav class="navbar">
-      <ul>
-        <li><a href="{% url 'home' %}">Home</a></li>
-        <li><a href="{% url 'user_index' %}">Users</a></li>
-        <li class="dropdown">
-          <a href="#" class="dropbtn">Create New</a>
-          <div class="dropdown-content">
-            {% for view, label in links %}
-              <a href="{% url view %}">{{ label }}</a>
-            {% endfor %}
-          </div>
-        </li>
-        <li><a href="{% url 'settings' %}">Settings</a></li>
-        <li><a href="{% url 'logout' %}">Logout</a></li>
-      </ul>
-    </nav>
-  {% endif %}
-  
-  {% block content %}
-  {% endblock %}
-</body>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'css/foundation.min.css' %}" type="text/css">
+    <title>Bulk - {% block title %}{% endblock %}</title>
+    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
+  </head>
+  <body>
+    {% if links %}
+      <nav class="navbar">
+        <ul>
+          <li><a href="{% url 'home' %}">Home</a></li>
+          <li><a href="{% url 'user_index' %}">Users</a></li>
+          <li class="dropdown">
+            <a href="#" class="dropbtn">Create New</a>
+            <div class="dropdown-content">
+              {% for view, label in links %}
+                <a href="{% url view %}">{{ label }}</a>
+              {% endfor %}
+            </div>
+          </li>
+          <li><a href="{% url 'settings' %}">Settings</a></li>
+          <li><a href="{% url 'logout' %}">Logout</a></li>
+        </ul>
+      </nav>
+    {% endif %}
+
+    <div class="grid-x grid-margin-x">
+      <div class="cell small-4 small-offset-2">
+        {% block content %}
+        {% endblock %}
+      </div>
+    </div>
+
+    <script src="{% static 'js/vendor/jquery.js' %}"></script>
+    <script src="{% static 'js/vendor/what-input.js' %}"></script>
+    <script src="{% static 'js/vendor/foundation.min.js' %}"></script>
+    <script>
+      $(document).foundation();
+    </script>
+  </body>
 </html>
